@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>About The Weather</title>
+    <script
+  src="https://code.jquery.com/jquery-3.4.1.min.js"
+  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+  crossorigin="anonymous"></script>
+
     <link href="https://stackpath.bootstrapcdn.com/bootswatch/4.4.1/flatly/bootstrap.min.css" rel="stylesheet" integrity="sha384-yrfSO0DBjS56u5M+SjWTyAHujrkiYVtRYh2dtB3yLQtUz3bodOeialO59u5lUCFF" crossorigin="anonymous">
 </head>
     
@@ -22,7 +27,12 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-3">
-                    <div class="list-group">
+                    <form class="form-group my-2 my-lg-0">
+                        <input type="text" class="form-control" placeholder="Search City..." id="search-field">
+                        <input class="form-control" type="text" placeholder="State or Country..">
+                        <button type="button" class="btn btn-secondary btn-lg btn-block">Search</button>
+                      </form>
+                    <div class="list-group mt-4">
                         <a href="#" class="list-group-item list-group-item-action active">
                           Cras justo odio
                         </a>
@@ -30,7 +40,7 @@
                         </a>
                         <a href="#" class="list-group-item list-group-item-action disabled">Morbi leo risus
                         </a>
-                      </div> </div>
+                      </div> </div> 
                     <div class="col-md-9">
                         <div class="jumbotron">
                             <h1 class="display-3">Hello, world!</h1>
@@ -92,3 +102,6 @@
                 </div>
             </div>
         </div>
+</body>
+<script src="assests/scripts/app.js"></script>
+</html>
