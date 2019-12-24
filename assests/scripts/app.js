@@ -50,13 +50,25 @@ $(document).ready( function() {
               location = document.querySelector('.location'),
               description = document.querySelector('.description'),
               high = document.querySelector('.high'),
-              low = document.querySelector('.low'),
+              humidity = document.querySelector('.humidity'),
               icon = document.querySelector('.icon'),
               wind = document.querySelector('.wind');
 
+              location.textContent = ""+weather.city.name+", "+weather.city.country+"";
+              description.textContent = weather.list[0].weather[0].description;
+              temp.textContent = convertKelvin(JSON.parse(weather.list[0].main.temp));
+              icon.setAttribute('src', "http://openweathermap.org/img/w/"+weather.list[0].weather[0].icon+".png");
          };
 
 
+    
+    //convert kelvin to Fahrenheit and Celcius 
+    function convertKelvin (kelvin) {
+      var cTemp = Math.round(kelvin-273.15),
+          fTemp = Math.round(cTemp*9/5 +32),
+          output = `${fTemp}\xB0F  (${cTemp}\xB0C)`;
+    return output;
+    }
       function getPlaces() {
         var places;
         if (localStorage.getItem("places") === null) {
@@ -70,6 +82,30 @@ $(document).ready( function() {
       function changeLocation(newCity, newCountry) {
         city = newCity;
         country = newCountry;
+    }
+
+    function showCities(cities) {
+      document.querySelector("#city-list").textContent = "";
+      var container = document.getElementById("city-list"),
+        // ask = document.createElement("h1"),
+        ul = document.createElement("ul");
+    
+      // ask.appendChild(document.createTextNode(question.title));
+      ul.className = "list-group";
+    
+      cities.forEach(function(city) {
+        //create and append list items
+        var li = document.createElement("li");
+        li.className = "list-group-item list-group-item-action";
+        li.appendChild(document.createTextNode(city));
+        ul.appendChild(li);
+      });
+      //set current city to the active class
+      cities[cities.length - 1].className = "list-group-item list-group-item-action active"
+
+      // container.appendChild(ask);
+
+      container.appendChild(ul);
     }
 
       $('#search-btn').click(function() {
