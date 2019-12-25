@@ -107,13 +107,15 @@ $(document).ready( function() {
   currentCityEl.appendChild(document.createTextNode(cities[cities.length - 1].name));
 
   ul.appendChild(currentCityEl);
-  for (var i = 0; i < cities.length - 1; i++) {
-    //create and append list items
-    var li = document.createElement("li");
-    li.className = "list-group-item list-group-item-action";
-    li.setAttribute('data-country', cities[i].country);
-    li.appendChild(document.createTextNode(cities[i].name));
-    ul.appendChild(li);
+  for (var i = cities.length - 1; i >= 0; i--) {
+    var a = document.createElement("a");
+        
+    a.className = "list-group-item list-group-item-action";
+    a.setAttribute('data-country', cities[i].country);
+    a.setAttribute('href', '#');
+    a.appendChild(document.createTextNode(cities[i].name));
+    
+    ul.appendChild(a);
   }
 
   container.appendChild(ul);
