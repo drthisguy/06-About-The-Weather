@@ -87,6 +87,7 @@ $(document).ready( function() {
   } else {
     cities = JSON.parse(localStorage.getItem("cities"));
   }
+  console.log(cities);
   
   document.querySelector("#city-list").textContent = "";  //reset current list
   //generate list
@@ -97,7 +98,7 @@ $(document).ready( function() {
   ul.className = "list-group";
   //set current city to the active class
   currentCityEl.className = 
-  "list-group-item list-group-item-action active";
+  "list-group-item list-group-item-action active mt-4";
   console.log(cities);
   
   currentCityEl.appendChild(document.createTextNode(cities[cities.length - 1].name));
@@ -107,29 +108,47 @@ $(document).ready( function() {
     //create and append list items
     var li = document.createElement("li");
     li.className = "list-group-item list-group-item-action";
-    li.appendChild(document.createTextNode(city));
+    li.setAttribute('data-country', cities[i].country);
+    li.appendChild(document.createTextNode(cities[i].name));
     ul.appendChild(li);
   }
 
   container.appendChild(ul);
+  cityClickListener();
 }
 
+function cityClickListener() {
+    
+      var listItems = document.querySelectorAll(".list-group-item");
+    
+      listItems.forEach(function (city) {
+        city.addEventListener("click", function (event) {
+          var click = event.currentTarget,
+              cityObj = {
+              name : click.textContent,
+              country : click.getAttribute('data-country')
+              } 
+            getWeather(cityObj);
+          })
+        });
+       };
 
-      $('#search-btn').click(function() {
-          var city = $(this).siblings('#city-field').val().trim(),
-              country = $(this).siblings('#country-field').val().trim();
-              city = {
-                name : city,
-                country : country
-              }
-              //clear fields
-              $(this).siblings('#city-field').val('');
-              $(this).siblings('#country-field').val('');
-     
-      setCityInLS(city);
-          getCites(city);
-          getWeather(city);
-            
-      })
+
+    $('#search-btn').click(function() {
+        var city = $(this).siblings('#city-field').val().trim(),
+            country = $(this).siblings('#country-field').val().trim();
+            city = {
+              name : city,
+              country : country
+            }
+            //clear fields
+            $(this).siblings('#city-field').val('');
+            $(this).siblings('#country-field').val('');
+    
+        setCityInLS(city);
+        getCites(city);
+        getWeather(city);
+          
+    })
 
     });
