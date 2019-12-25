@@ -3,10 +3,7 @@ $(document).ready( function() {
     var geo = navigator.geolocation
         googApiKey = 'AIzaSyCI3zv9mMZuVUPGueGVIYUyD3etz0VJK7I',
         weatherKey = '63df9b45298d8782d0474639d201179f',
-        city= '',
-        country= '',
-        lat= '',
-        lng = '';
+        
 
     function GetUserPosition() {
         geo.getCurrentPosition(function(position) {
@@ -16,12 +13,12 @@ $(document).ready( function() {
         // url: "http://api.openweathermap.org/data/2.5/weather?lat="+lat+"&lon="+lng+"&appid="+weatherKey+"",
     })};
     // getWeather();
-    function getWeather() {
+    function getWeather(city) {
 
 
        //get location specifics from google first. This will allow for more definite results. Users can misspell input, use state or country OR neither.  They can also use abbreviations.. (e.g. 'philly'), etc. 
        $.ajax({       
-               url: "https://maps.googleapis.com/maps/api/geocode/json?address="+city+",+"+country+"&key="+googApiKey+"",
+               url: "https://maps.googleapis.com/maps/api/geocode/json?address="+city.name+",+"+city.country+"&key="+googApiKey+"",
                method: "GET"
              })
                .then(function(response) {
@@ -69,52 +66,69 @@ $(document).ready( function() {
           output = `${fTemp}\xB0F  (${cTemp}\xB0C)`;
     return output;
     }
-      function getPlaces() {
-        var places;
-        if (localStorage.getItem("places") === null) {
-          GetUserPosition();
-          places = [];
-        } else {
-          places = JSON.parse(localStorage.getItem("places"));
-        }
+
+    function setCityInLS(city) {
+      var cities;
+      if (localStorage.getItem("cities") === null) {
+        cities = [];
+      } else {
+        cities = JSON.parse(localStorage.getItem("cities"));
       }
-
-      function changeLocation(newCity, newCountry) {
-        city = newCity;
-        country = newCountry;
+      cities.push(city);  //set back in LS
+      localStorage.setItem("cities", JSON.stringify(cities));
     }
 
-    function showCities(cities) {
-      document.querySelector("#city-list").textContent = "";
-      var container = document.getElementById("city-list"),
-        // ask = document.createElement("h1"),
-        ul = document.createElement("ul");
-    
-      // ask.appendChild(document.createTextNode(question.title));
-      ul.className = "list-group";
-    
-      cities.forEach(function(city) {
-        //create and append list items
-        var li = document.createElement("li");
-        li.className = "list-group-item list-group-item-action";
-        li.appendChild(document.createTextNode(city));
-        ul.appendChild(li);
-      });
-      //set current city to the active class
-      cities[cities.length - 1].className = "list-group-item list-group-item-action active"
+      function getCites(city) {
+  var cities;
+  if (localStorage.getItem("cities") === null) {
+    GetUserPosition();
+    cities = [];
+    cities.push(city);
+  } else {
+    cities = JSON.parse(localStorage.getItem("cities"));
+  }
+  
+  document.querySelector("#city-list").textContent = "";  //reset current list
+  //generate list
+  var container = document.getElementById("city-list"),
+    currentCityEl = document.createElement("li"),
+    ul = document.createElement("ul");
 
-      // container.appendChild(ask);
+  ul.className = "list-group";
+  //set current city to the active class
+  currentCityEl.className = 
+  "list-group-item list-group-item-action active";
+  console.log(cities);
+  
+  currentCityEl.appendChild(document.createTextNode(cities[cities.length - 1].name));
 
-      container.appendChild(ul);
-    }
+  ul.appendChild(currentCityEl);
+  for (var i = 0; i < cities.length - 1; i++) {
+    //create and append list items
+    var li = document.createElement("li");
+    li.className = "list-group-item list-group-item-action";
+    li.appendChild(document.createTextNode(city));
+    ul.appendChild(li);
+  }
+
+  container.appendChild(ul);
+}
+
 
       $('#search-btn').click(function() {
           var city = $(this).siblings('#city-field').val().trim(),
               country = $(this).siblings('#country-field').val().trim();
-        changeLocation(city, country);
-          
-            var weather = getWeather();
-            console.log(weather);
+              city = {
+                name : city,
+                country : country
+              }
+              //clear fields
+              $(this).siblings('#city-field').val('');
+              $(this).siblings('#country-field').val('');
+     
+      setCityInLS(city);
+          getCites(city);
+          getWeather(city);
             
       })
 
