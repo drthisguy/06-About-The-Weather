@@ -17,6 +17,7 @@ $(document).ready( function() {
 
 
        //get location specifics from google first. This will allow for more definite results. Users can misspell input, use state or country OR neither.  They can also use abbreviations.. (e.g. 'philly'), etc. 
+
        $.ajax({       
                url: "https://maps.googleapis.com/maps/api/geocode/json?address="+city.name+",+"+city.country+"&key="+googApiKey+"",
                method: "GET"
@@ -26,21 +27,21 @@ $(document).ready( function() {
                  city.name = response.results[0].formatted_address;
                  city.country = response.results[0].address_components[response.results[0].address_components.length - 1].long_name; 
 
-                 //set and get new city list
-                 setCityInLS(city);
-                 getCites(city);
-   
-            $.ajax({    //use more precise city to get from openweather.
+                 
+                console.log(city.name, city.country);
+                
+            $.ajax({   
                     url: "http://api.openweathermap.org/data/2.5/forecast?q="+city.name+","+city.country+"&APPID="+weatherKey+"",
                     method: "GET"
                 })
                     .then(function(weather) {
                         console.log(weather);
-                        
-                    console.log(city, country);
-                    paintWeather(weather)
+                    
+                    paintWeather(weather);
                  });
-                
+                //set and get new city list
+                setCityInLS(city);
+                getCites(city);
           })
         
     };
@@ -77,6 +78,8 @@ $(document).ready( function() {
       } else {
         cities = JSON.parse(localStorage.getItem("cities"));
       }
+      //replace the commas in response date before json stringifying
+      city.name = city.name.replace(",", " \,");
       cities.push(city);  //set back in LS
       localStorage.setItem("cities", JSON.stringify(cities));
     }
@@ -91,22 +94,42 @@ $(document).ready( function() {
     cities = JSON.parse(localStorage.getItem("cities"));
   }
   console.log(cities);
+
+  //check for and remove duplicate cities
+  for (var i = 0; i < cities.length - 1; i++) {
+    if (cities[i].name == city.name) {
+      cities.splice(i, 1);  
+      console.log(cities[i].name, city.name);
+      
+    } 
+  }
+    
   
+   
+  
+  console.log(cities);
+
   document.querySelector("#city-list").textContent = "";  //reset current list
   //generate list
   var container = document.getElementById("city-list"),
     currentCityEl = document.createElement("li"),
+    clearBtn = document.createElement("button"),
     ul = document.createElement("ul");
 
   ul.className = "list-group";
-  //set current city to the active class
-  currentCityEl.className = 
-  "list-group-item list-group-item-action active mt-4";
-  console.log(cities);
   
-  currentCityEl.appendChild(document.createTextNode(cities[cities.length - 1].name));
+   //set current city to the active class and append.
+   currentCityEl.className = 
+   "list-group-item list-group-item-action active mt-4";  
+   currentCityEl.appendChild(document.createTextNode(cities[cities.length - 1].name));
+   ul.appendChild(currentCityEl);
+  
+  //create clear button
+  clearBtn.setAttribute('type', "button")
+  clearBtn.className = 'btn btn-outline-warning';
+  clearBtn.textContent = 'Clear History';
 
-  ul.appendChild(currentCityEl);
+    //check for and remove duplicate cities
   for (var i = cities.length - 1; i >= 0; i--) {
     var a = document.createElement("a");
         
@@ -119,9 +142,20 @@ $(document).ready( function() {
   }
 
   container.appendChild(ul);
+  container.appendChild(clearBtn);
   cityClickListener();
 }
 
+function findDupes(arr) {
+  var filtered = [];
+    for (var i = 0; i < arr.length; i++) {
+      var current = i,
+          first = arr.indexOf(arr[i]);
+      if (current !== first) {
+        filtered.push(arr[i]);
+      } }
+    return filtered;
+ };
 function cityClickListener() {
     
       var listItems = document.querySelectorAll(".list-group-item");
