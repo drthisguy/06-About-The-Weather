@@ -23,12 +23,15 @@ $(document).ready( function() {
              })
                .then(function(response) {
                  console.log(response);
-                 var city = response.results[0].address_components[0].long_name;
-                 var country = response.results[0].address_components[2].long_name; 
-                 
+                 city.name = response.results[0].formatted_address;
+                 city.country = response.results[0].address_components[response.results[0].address_components.length - 1].long_name; 
+
+                 //set and get new city list
+                 setCityInLS(city);
+                 getCites(city);
    
-            $.ajax({    //use coordinates to get weather from openweather.
-                    url: "http://api.openweathermap.org/data/2.5/forecast?q="+city+","+country+"&APPID="+weatherKey+"",
+            $.ajax({    //use more precise city to get from openweather.
+                    url: "http://api.openweathermap.org/data/2.5/forecast?q="+city.name+","+city.country+"&APPID="+weatherKey+"",
                     method: "GET"
                 })
                     .then(function(weather) {
@@ -78,7 +81,7 @@ $(document).ready( function() {
       localStorage.setItem("cities", JSON.stringify(cities));
     }
 
-      function getCites(city) {
+  function getCites(city) {
   var cities;
   if (localStorage.getItem("cities") === null) {
     GetUserPosition();
@@ -144,9 +147,7 @@ function cityClickListener() {
             //clear fields
             $(this).siblings('#city-field').val('');
             $(this).siblings('#country-field').val('');
-    
-        setCityInLS(city);
-        getCites(city);
+  
         getWeather(city);
           
     })
