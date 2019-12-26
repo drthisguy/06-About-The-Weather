@@ -57,6 +57,7 @@ $(document).ready( function() {
 
               location.textContent = ""+weather.city.name+", "+weather.city.country+"";
               description.textContent = weather.list[0].weather[0].description;
+              humidity.textContent = "Relative Humidity: "+weather.list[0].main.humidity+"%";
               temp.textContent = convertKelvin(JSON.parse(weather.list[0].main.temp));
               icon.setAttribute('src', "http://openweathermap.org/img/w/"+weather.list[0].weather[0].icon+".png");
          };
@@ -80,6 +81,7 @@ $(document).ready( function() {
       }
       //replace the commas in response date before json stringifying
       city.name = city.name.replace(",", " \,");
+      city.country = city.country.replace(",", " \,");
       cities.push(city);  //set back in LS
       localStorage.setItem("cities", JSON.stringify(cities));
     }
@@ -89,25 +91,19 @@ $(document).ready( function() {
   if (localStorage.getItem("cities") === null) {
     GetUserPosition();
     cities = [];
-    cities.push(city);
+    
   } else {
     cities = JSON.parse(localStorage.getItem("cities"));
   }
-  console.log(cities);
-
-  //check for and remove duplicate cities
-  for (var i = 0; i < cities.length - 1; i++) {
-    if (cities[i].name == city.name) {
-      cities.splice(i, 1);  
-      console.log(cities[i].name, city.name);
-      
-    } 
-  }
-    
-  
-   
   
   console.log(cities);
+  //check for and remove duplicate cities by creating a set which will eliminates dupes. then convert back to an array.
+  
+  
+  cities = removeDupes(cities);
+  cities.push(city);
+  console.log(cities);
+  
 
   document.querySelector("#city-list").textContent = "";  //reset current list
   //generate list
@@ -130,9 +126,9 @@ $(document).ready( function() {
   clearBtn.textContent = 'Clear History';
 
     //check for and remove duplicate cities
-  for (var i = cities.length - 1; i >= 0; i--) {
+  for (var i = cities.length; i >= 0; i--) {
     var a = document.createElement("a");
-        
+        debugger
     a.className = "list-group-item list-group-item-action";
     a.setAttribute('data-country', cities[i].country);
     a.setAttribute('href', '#');
@@ -146,16 +142,11 @@ $(document).ready( function() {
   cityClickListener();
 }
 
-function findDupes(arr) {
-  var filtered = [];
-    for (var i = 0; i < arr.length; i++) {
-      var current = i,
-          first = arr.indexOf(arr[i]);
-      if (current !== first) {
-        filtered.push(arr[i]);
-      } }
-    return filtered;
- };
+function removeDupes(arr) {
+ 
+  return uniKeys = [...(new Set(arr.map(({ name }) => name)))];
+}
+
 function cityClickListener() {
     
       var listItems = document.querySelectorAll(".list-group-item");
