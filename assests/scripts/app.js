@@ -40,8 +40,8 @@ $(document).ready( function() {
                     paintWeather(weather);
                  });
                 //set and get new city list
-                setCityInLS(city);
                 getCites(city);
+                setCityInLS(city);
           })
         
     };
@@ -89,19 +89,16 @@ $(document).ready( function() {
   function getCites(city) {
   var cities;
   if (localStorage.getItem("cities") === null) {
-    GetUserPosition();
     cities = [];
-    
   } else {
     cities = JSON.parse(localStorage.getItem("cities"));
   }
-  
+  cities.push(city);
   console.log(cities);
   //check for and remove duplicate cities by creating a set which will eliminates dupes. then convert back to an array.
   
-  
   cities = removeDupes(cities);
-  cities.push(city);
+ 
   console.log(cities);
   
 
@@ -120,48 +117,63 @@ $(document).ready( function() {
    currentCityEl.appendChild(document.createTextNode(cities[cities.length - 1].name));
    ul.appendChild(currentCityEl);
   
-  //create clear button
-  clearBtn.setAttribute('type', "button")
-  clearBtn.className = 'btn btn-outline-warning';
-  clearBtn.textContent = 'Clear History';
-
-    //check for and remove duplicate cities
-  for (var i = cities.length; i >= 0; i--) {
+  
+    //Create list for other cities
+  cities.forEach(function (city) {
     var a = document.createElement("a");
-        debugger
+
     a.className = "list-group-item list-group-item-action";
-    a.setAttribute('data-country', cities[i].country);
+    a.setAttribute('data-country', city.country);
     a.setAttribute('href', '#');
-    a.appendChild(document.createTextNode(cities[i].name));
+    a.appendChild(document.createTextNode(city.name));
     
     ul.appendChild(a);
-  }
+  })
+    //create clear button
+    clearBtn.setAttribute('type', "button")
+    clearBtn.className = 'btn btn-outline-warning clear';
+    clearBtn.textContent = 'Clear History';
+
 
   container.appendChild(ul);
   container.appendChild(clearBtn);
   cityClickListener();
 }
-
+//ES6 magic used to remove dulicate objects from an array.
 function removeDupes(arr) {
- 
-  return uniKeys = [...(new Set(arr.map(({ name }) => name)))];
+  var nameArr = [...(new Set(arr.map(({ name }) => name)))],
+      countryArr = [...(new Set(arr.map(({ country }) => country)))];
+ return reconstructor(nameArr, countryArr);
 }
-
+//Reestablish the original data format after removing duplicates.  
+function reconstructor(nameArr, countryArr) {
+  var arr = [];
+    for (var i = 0; i < nameArr.length; i++) {
+      var obj = { name : nameArr[i] , country : countryArr[i]};
+      arr.push(obj);
+    }
+  return arr;
+ };
 function cityClickListener() {
-    
-      var listItems = document.querySelectorAll(".list-group-item");
-    
-      listItems.forEach(function (city) {
-        city.addEventListener("click", function (event) {
-          var click = event.currentTarget,
-              cityObj = {
-              name : click.textContent,
-              country : click.getAttribute('data-country')
-              } 
-            getWeather(cityObj);
-          })
-        });
-       };
+  
+  var listItems = document.querySelectorAll(".list-group-item");
+
+  listItems.forEach(function (city) {
+    city.addEventListener("click", function (event) {
+      var click = event.currentTarget,
+          cityObj = {
+          name : click.textContent,
+          country : click.getAttribute('data-country')
+          } 
+        getWeather(cityObj);
+      })
+    });
+    //clear btn
+  $('.clear').click(function() { 
+    localStorage.clear();
+    location.reload();
+  });
+};
 
 
     $('#search-btn').click(function() {
