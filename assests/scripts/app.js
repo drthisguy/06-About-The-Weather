@@ -126,8 +126,9 @@ $(document).ready( function() {
     a.setAttribute('data-country', city.country);
     a.setAttribute('href', '#');
     a.appendChild(document.createTextNode(city.name));
-    
+    if (city.name !== currentCityEl.textContent){
     ul.appendChild(a);
+    }
   })
     //create clear button
     clearBtn.setAttribute('type', "button")
@@ -159,6 +160,7 @@ function cityClickListener() {
   var listItems = document.querySelectorAll(".list-group-item");
 
   listItems.forEach(function (city) {
+    
     city.addEventListener("click", function (event) {
       var click = event.currentTarget,
           cityObj = {
@@ -168,7 +170,7 @@ function cityClickListener() {
         getWeather(cityObj);
       })
     });
-    //clear btn
+    //clear btn~
   $('.clear').click(function() { 
     localStorage.clear();
     location.reload();
