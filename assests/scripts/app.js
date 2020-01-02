@@ -39,7 +39,7 @@ $(document).ready( function() {
                     
                     paintWeather(weather);
                  });
-                //set and get new city list
+                //get and set new city list
                 getCites(city);
                 setCityInLS(city);
           })
@@ -55,14 +55,56 @@ $(document).ready( function() {
               icon = document.querySelector('.icon'),
               wind = document.querySelector('.wind');
 
-              location.textContent = ""+weather.city.name+", "+weather.city.country+"";
-              description.textContent = weather.list[0].weather[0].description;
-              humidity.textContent = "Relative Humidity: "+weather.list[0].main.humidity+"%";
-              temp.textContent = convertKelvin(JSON.parse(weather.list[0].main.temp));
-              icon.setAttribute('src', "http://openweathermap.org/img/w/"+weather.list[0].weather[0].icon+".png");
-         };
+          location.textContent = ""+weather.city.name+", "+weather.city.country+"";
+          description.textContent = weather.list[0].weather[0].description;
+          humidity.textContent = "Relative Humidity: "+weather.list[0].main.humidity+"%";
+          temp.textContent = convertKelvin(JSON.parse(weather.list[0].main.temp));
+          icon.setAttribute('src', "http://openweathermap.org/img/w/"+weather.list[0].weather[0].icon+".png");
 
+          var now = new Date(),
+              sunTemps = [], monTemps = [], tueTemps = [], wedTemps = [],
+              thurTemps = [], friTemps = [], satTemps = [];
+              
+          weather.list.forEach( function(timeOfDay) {
+            var future  = new Date(timeOfDay.dt*1000);
+                
+            if (future.getDay() !== now.getDay()) {
+                switch (future.getDay()) {
+                  case 0:
+                    sunTemps.push(timeOfDay.main.temp);
+                    
+                    
+                  case 1:
+                    monTemps.push(timeOfDay.main.temp);
+                    
+                    
+                  case 2:
+                    tueTemps.push(timeOfDay.main.temp);
+                    
+                  case 3:
+                    wedTemps.push(timeOfDay.main.temp);
+                   
+                  case 4:
+                    thurTemps.push(timeOfDay.main.temp);
+                   
+                  case 5:
+                    friTemps.push(timeOfDay.main.temp);                   
+                  case 6:
+                    satTemps.push(timeOfDay.main.temp);
 
+                }                
+              } 
+          });
+          var satHigh  = Math.max.apply(null, satTemps),
+              friHigh  = Math.max.apply(null, friTemps),
+              thurHigh  = Math.max(...thurTemps),
+              wedHigh  = Math.max(...wedTemps),
+              tueHigh  = Math.max(...tueTemps),
+              monHigh  = Math.max(...monTemps),
+              sunHigh  = Math.max(...sunTemps);
+
+              console.log(sunHigh, monHigh, tueHigh, wedHigh, thurHigh, friHigh, satHigh);
+              }; 
     
     //convert kelvin to Fahrenheit and Celcius 
     function convertKelvin (kelvin) {
@@ -79,10 +121,13 @@ $(document).ready( function() {
       } else {
         cities = JSON.parse(localStorage.getItem("cities"));
       }
+      
       //replace the commas in response date before json stringifying
       city.name = city.name.replace(",", " \,");
       city.country = city.country.replace(",", " \,");
-      cities.push(city);  //set back in LS
+      cities.push(city); 
+      //check for and remove duplicate cities.
+      cities = removeDupes(cities);
       localStorage.setItem("cities", JSON.stringify(cities));
     }
 
@@ -94,16 +139,9 @@ $(document).ready( function() {
     cities = JSON.parse(localStorage.getItem("cities"));
   }
   cities.push(city);
-  console.log(cities);
-  //check for and remove duplicate cities by creating a set which will eliminates dupes. then convert back to an array.
-  
-  cities = removeDupes(cities);
- 
-  console.log(cities);
-  
 
   document.querySelector("#city-list").textContent = "";  //reset current list
-  //generate list
+  //generate new list
   var container = document.getElementById("city-list"),
     currentCityEl = document.createElement("li"),
     clearBtn = document.createElement("button"),
@@ -129,7 +167,7 @@ $(document).ready( function() {
     if (city.name !== currentCityEl.textContent){
     ul.appendChild(a);
     }
-  })
+  });
     //create clear button
     clearBtn.setAttribute('type', "button")
     clearBtn.className = 'btn btn-outline-warning clear';
@@ -140,27 +178,26 @@ $(document).ready( function() {
   container.appendChild(clearBtn);
   cityClickListener();
 }
-//ES6 magic used to remove dulicate objects from an array.
+
 function removeDupes(arr) {
+//ES6 magic used to remove dulicate objects from the array.
   var nameArr = [...(new Set(arr.map(({ name }) => name)))],
-      countryArr = [...(new Set(arr.map(({ country }) => country)))];
- return reconstructor(nameArr, countryArr);
-}
-//Reestablish the original data format after removing duplicates.  
-function reconstructor(nameArr, countryArr) {
-  var arr = [];
+      countryArr = [...(new Set(arr.map(({ country }) => country)))],
+      purgedArray = [];
+ 
+//Reestablish the original object format from the data sets.  
     for (var i = 0; i < nameArr.length; i++) {
       var obj = { name : nameArr[i] , country : countryArr[i]};
-      arr.push(obj);
+      purgedArray.push(obj);
     }
-  return arr;
+  return purgedArray;
  };
+
+ //event listener for city list
 function cityClickListener() {
-  
   var listItems = document.querySelectorAll(".list-group-item");
 
   listItems.forEach(function (city) {
-    
     city.addEventListener("click", function (event) {
       var click = event.currentTarget,
           cityObj = {
