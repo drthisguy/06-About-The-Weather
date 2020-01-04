@@ -88,6 +88,12 @@ $(document).ready( function() {
       $('.icon-3').attr('src', "http://openweathermap.org/img/w/"+weather.list[indices[2]].weather[0].icon+".png");
       $('.icon-4').attr('src', "http://openweathermap.org/img/w/"+weather.list[indices[3]].weather[0].icon+".png");
       $('.icon-5').attr('src', "http://openweathermap.org/img/w/"+weather.list[indices[4]].weather[0].icon+".png");
+
+      $('.descript-1').text(weather.list[indices[0]].weather[0].description)
+      $('.descript-2').text(weather.list[indices[1]].weather[0].description)
+      $('.descript-3').text(weather.list[indices[2]].weather[0].description)
+      $('.descript-4').text(weather.list[indices[3]].weather[0].description)
+      $('.descript-5').text(weather.list[indices[4]].weather[0].description)
     }
 
 function getHighTemps(weather) {
