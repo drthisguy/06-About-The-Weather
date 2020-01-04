@@ -69,6 +69,11 @@ $(document).ready( function() {
       $('.day-4').text(moment().add(4, 'days').format('dddd'));
       $('.day-5').text(moment().add(5, 'days').format('dddd'));
       
+      $('.high-1').text('High: '+highs[0]);
+      $('.high-2').text('High: '+highs[1]);
+      $('.high-3').text('High: '+highs[2]);
+      $('.high-4').text('High: '+highs[3]);
+      $('.high-5').text('High: '+highs[4]);
     }
 
 function getHighTemps(weather) {
