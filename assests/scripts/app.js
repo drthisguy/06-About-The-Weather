@@ -61,14 +61,69 @@ $(document).ready( function() {
           temp.textContent = convertKelvin(JSON.parse(weather.list[0].main.temp));
           icon.setAttribute('src', "http://openweathermap.org/img/w/"+weather.list[0].weather[0].icon+".png");
 
-        var highs = getHighTemps(weather);
+        var highs = getHighTemps(weather),
+            lows = getLowTemps(weather);
+          console.log(highs, lows);
+          
         }
-    
-    function getHighTemps(weather) {
+
+function getHighTemps(weather) {
+  
+  var now = new Date(),
+  sunTemps = [], monTemps = [], tueTemps = [], wedTemps = [],
+  thurTemps = [], friTemps = [], satTemps = [];
       
-      var now = new Date(),
-      sunTemps = [], monTemps = [], tueTemps = [], wedTemps = [],
-      thurTemps = [], friTemps = [], satTemps = [];
+  weather.list.forEach( function(timeOfDay) {
+    var future  = new Date(timeOfDay.dt*1000);
+        
+    if (future.getDay() !== now.getDay()) {
+        switch (future.getDay()) {
+          case 0:
+            sunTemps.push(timeOfDay.main.temp);
+            break;
+          case 1:
+            monTemps.push(timeOfDay.main.temp);
+            break;
+          case 2:
+            tueTemps.push(timeOfDay.main.temp);
+            break;
+          case 3:
+            wedTemps.push(timeOfDay.main.temp);
+            break;
+          case 4:
+            thurTemps.push(timeOfDay.main.temp);
+            break;
+          case 5:
+            friTemps.push(timeOfDay.main.temp);      
+            break;             
+          case 6:
+            satTemps.push(timeOfDay.main.temp);
+        }                
+      } 
+  });
+
+  var highs = [satHigh  = Math.max.apply(null, satTemps),
+              friHigh  = Math.max.apply(null, friTemps),
+              thurHigh  = Math.max.apply(null, thurTemps),
+              wedHigh  = Math.max.apply(null, wedTemps),
+              tueHigh  = Math.max.apply(null, tueTemps),
+              monHigh  = Math.max.apply(null, monTemps),
+              sunHigh  = Math.max.apply(null, sunTemps)],
+              fiveDayHighs = [];
+    
+      highs.forEach(function(high) {
+        if (isFinite(high))
+        fiveDayHighs.push(high);
+      })
+      return fiveDayHighs;
+      
+  };
+
+  function getLowTemps(weather) {
+      
+  var now = new Date(),
+  sunTemps = [], monTemps = [], tueTemps = [], wedTemps = [],
+  thurTemps = [], friTemps = [], satTemps = [];
       
   weather.list.forEach( function(timeOfDay) {
     var future  = new Date(timeOfDay.dt*1000);
@@ -99,22 +154,24 @@ $(document).ready( function() {
         }                
       } 
   });
-  var highs = [satHigh  = Math.max.apply(null, satTemps),
-              friHigh  = Math.max.apply(null, friTemps),
-              thurHigh  = Math.max.apply(null, thurTemps),
-              wedHigh  = Math.max.apply(null, wedTemps),
-              tueHigh  = Math.max.apply(null, tueTemps),
-              monHigh  = Math.max.apply(null, monTemps),
-              sunHigh  = Math.max.apply(null, sunTemps)],
-              fiveDayHigh = [];
+
+  var lows = [satHigh  = Math.min.apply(null, satTemps),
+              friHigh  = Math.min.apply(null, friTemps),
+              thurHigh  = Math.min.apply(null, thurTemps),
+              wedHigh  = Math.min.apply(null, wedTemps),
+              tueHigh  = Math.min.apply(null, tueTemps),
+              monHigh  = Math.min.apply(null, monTemps),
+              sunHigh  = Math.min.apply(null, sunTemps)],
+              fiveDayLows = [];
     
-      highs.forEach(function(high) {
-        if (isFinite(high))
-        fiveDayHigh.push(high);
+      lows.forEach(function(low) {
+        if (isFinite(low))
+        fiveDayLows.push(low);
       })
-      console.log(fiveDayHigh);
+      return fiveDayLows;
       
   };
+  
     //convert kelvin to Fahrenheit and Celcius 
     function convertKelvin (kelvin) {
       var cTemp = Math.round(kelvin-273.15),
