@@ -74,6 +74,12 @@ $(document).ready( function() {
       $('.high-3').text('High: '+highs[2]);
       $('.high-4').text('High: '+highs[3]);
       $('.high-5').text('High: '+highs[4]);
+
+      $('.low-1').text('Low: '+lows[0]);
+      $('.low-2').text('Low: '+lows[1]);
+      $('.low-3').text('Low: '+lows[2]);
+      $('.low-4').text('Low: '+lows[3]);
+      $('.low-5').text('Low: '+lows[4]);
     }
 
 function getHighTemps(weather) {
