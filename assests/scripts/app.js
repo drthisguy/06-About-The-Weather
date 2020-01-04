@@ -45,27 +45,31 @@ $(document).ready( function() {
           })
         
     };
+    function paintWeather(weather) {
+      var temp = document.querySelector('.temp'),
+          location = document.querySelector('.location'),
+          description = document.querySelector('.description'),
+          high = document.querySelector('.high'),
+          humidity = document.querySelector('.humidity'),
+          icon = document.querySelector('.icon'),
+          wind = document.querySelector('.wind');
 
-        function paintWeather(weather) {
-          var temp = document.querySelector('.temp'),
-              location = document.querySelector('.location'),
-              description = document.querySelector('.description'),
-              high = document.querySelector('.high'),
-              humidity = document.querySelector('.humidity'),
-              icon = document.querySelector('.icon'),
-              wind = document.querySelector('.wind');
+      location.textContent = ""+weather.city.name+", "+weather.city.country+"";
+      description.textContent = weather.list[0].weather[0].description;
+      humidity.textContent = "Relative Humidity: "+weather.list[0].main.humidity+"%";
+      temp.textContent = convertKelvin(JSON.parse(weather.list[0].main.temp));
+      icon.setAttribute('src', "http://openweathermap.org/img/w/"+weather.list[0].weather[0].icon+".png");
 
-          location.textContent = ""+weather.city.name+", "+weather.city.country+"";
-          description.textContent = weather.list[0].weather[0].description;
-          humidity.textContent = "Relative Humidity: "+weather.list[0].main.humidity+"%";
-          temp.textContent = convertKelvin(JSON.parse(weather.list[0].main.temp));
-          icon.setAttribute('src', "http://openweathermap.org/img/w/"+weather.list[0].weather[0].icon+".png");
-
-        var highs = getHighTemps(weather),
-            lows = getLowTemps(weather);
-          console.log(highs, lows);
-          
-        }
+    var highs = getHighTemps(weather),
+        lows = getLowTemps(weather);
+      console.log(highs, lows);
+      $('.day-1').text(moment().add(1, 'days').format('dddd'));
+      $('.day-2').text(moment().add(2, 'days').format('dddd'));
+      $('.day-3').text(moment().add(3, 'days').format('dddd'));
+      $('.day-4').text(moment().add(4, 'days').format('dddd'));
+      $('.day-5').text(moment().add(5, 'days').format('dddd'));
+      
+    }
 
 function getHighTemps(weather) {
   
@@ -101,14 +105,13 @@ function getHighTemps(weather) {
         }                
       } 
   });
-
-  var highs = [satHigh  = Math.max.apply(null, satTemps),
-              friHigh  = Math.max.apply(null, friTemps),
-              thurHigh  = Math.max.apply(null, thurTemps),
-              wedHigh  = Math.max.apply(null, wedTemps),
-              tueHigh  = Math.max.apply(null, tueTemps),
+  var highs = [sunHigh  = Math.max.apply(null, sunTemps),
               monHigh  = Math.max.apply(null, monTemps),
-              sunHigh  = Math.max.apply(null, sunTemps)],
+              tueHigh  = Math.max.apply(null, tueTemps),
+              wedHigh  = Math.max.apply(null, wedTemps),
+              thurHigh  = Math.max.apply(null, thurTemps),
+              friHigh  = Math.max.apply(null, friTemps),
+              satHigh  = Math.max.apply(null, satTemps)],
               fiveDayHighs = [];
     
       highs.forEach(function(high) {
@@ -154,22 +157,20 @@ function getHighTemps(weather) {
         }                
       } 
   });
-
-  var lows = [satHigh  = Math.min.apply(null, satTemps),
-              friHigh  = Math.min.apply(null, friTemps),
-              thurHigh  = Math.min.apply(null, thurTemps),
-              wedHigh  = Math.min.apply(null, wedTemps),
-              tueHigh  = Math.min.apply(null, tueTemps),
+  var lows = [sunHigh  = Math.min.apply(null, sunTemps),
               monHigh  = Math.min.apply(null, monTemps),
-              sunHigh  = Math.min.apply(null, sunTemps)],
+              tueHigh  = Math.min.apply(null, tueTemps),
+              wedHigh  = Math.min.apply(null, wedTemps),
+              thurHigh  = Math.min.apply(null, thurTemps),
+              friHigh  = Math.min.apply(null, friTemps),
+              satHigh  = Math.min.apply(null, satTemps)],
               fiveDayLows = [];
     
-      lows.forEach(function(low) {
-        if (isFinite(low))
-        fiveDayLows.push(low);
-      })
-      return fiveDayLows;
-      
+  lows.forEach(function(low) {
+    if (isFinite(low))
+    fiveDayLows.push(low);
+  })
+  return fiveDayLows;   
   };
   
     //convert kelvin to Fahrenheit and Celcius 
