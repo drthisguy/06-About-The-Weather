@@ -1,25 +1,24 @@
 $(document).ready( function() {
 
-    var geo = navigator.geolocation
-        googApiKey = 'AIzaSyCI3zv9mMZuVUPGueGVIYUyD3etz0VJK7I',
-        weatherKey = '63df9b45298d8782d0474639d201179f';
-        
+  var geo = navigator.geolocation
+      googApiKey = 'AIzaSyCI3zv9mMZuVUPGueGVIYUyD3etz0VJK7I',
+      weatherKey = '63df9b45298d8782d0474639d201179f';
+      
 
-    
-    //listen to toggle for unit change
-    $('#customSwitch1').change(function() {
-      var unit = document.getElementById('customSwitch1').checked ? 'fahrenheit' : 'celcius',
-          currentCityEl = document.querySelector('li.active'),
-          country = currentCityEl.getAttribute('data-country'),
-          name = currentCityEl.textContent,
-          city = {
-            name : name,
-            country : country,
-            unit : unit
-          };
-      getWeather(city);
-              
-        });
+  
+  //listen to toggle switch for unit change
+  $('#customSwitch1').change(function() {
+    var unit = document.getElementById('customSwitch1').checked ? 'fahrenheit' : 'celcius',
+        currentCityEl = document.querySelector('li.active'),
+        country = currentCityEl.getAttribute('data-country'),
+        name = currentCityEl.textContent,
+        city = {
+          name : name,
+          country : country,
+          unit : unit
+        };        
+    getWeather(city);    
+  });
       
   setMapCanvas();
   loadCites();
@@ -27,18 +26,21 @@ $(document).ready( function() {
     geo.getCurrentPosition(function(position) {
     lat = position.coords.latitude;
     lng = position.coords.longitude;
-
+  //then, set their weather
   $.ajax({   
     url: "http://api.openweathermap.org/data/2.5/forecast?lat="+lat+"&lon="+lng+"&appid="+weatherKey+"",
     method: "GET"
   })
     .then(function(weather) {
-        //working with what ya have.
+        //working with what we have..
         var map = {lat : lat, lng : lng},
             city = {name : weather.city.name, 
-                   country : weather.city.country} 
+                   country : weather.city.country,
+                   unit : 'fahrenheit'};
           initMap(map);
           paintWeather(weather, city);
+          getCites(city);
+          setCityInLS(city);
     })})};
     function getWeather(city) {
 
@@ -51,14 +53,16 @@ $(document).ready( function() {
                  console.log(response);
                  city.name = response.results[0].formatted_address;
                  city.country = response.results[0].address_components[response.results[0].address_components.length - 1].long_name; 
-                 console.log(response.results[0].geometry.location);
-                initMap(response.results[0].geometry.location);
+                 var coords = response.results[0].geometry.location,
+                     lat = coords.lat,
+                     lng = coords.lng; 
+                initMap(coords);
                  
                  
-                console.log(city.name, city.country, city.unit);
+                console.log(city.name, city.country, city.unit, coords);
                 
             $.ajax({   
-                    url: "http://api.openweathermap.org/data/2.5/forecast?q="+city.name+","+city.country+"&APPID="+weatherKey+"",
+                    url: "http://api.openweathermap.org/data/2.5/forecast?lat="+lat+"&lon="+lng+"&appid="+weatherKey+"",
                     method: "GET"
                 })
                     .then(function(weather) {
@@ -94,7 +98,7 @@ $(document).ready( function() {
     
       console.log(highs, lows, indices);
       if (city.unit === 'fahrenheit') {
-        $("#customSwitch1"). prop("checked", true); //toggle unit switch
+        $("#customSwitch1"). prop("checked", true); 
         temp = converFahrenheit(JSON.parse(weather.list[0].main.temp));
         kHighs.forEach(function(high) {
           highs.push(converFahrenheit(high));
@@ -103,7 +107,7 @@ $(document).ready( function() {
           lows.push(converFahrenheit(low));
         })
       } else {
-        $("#customSwitch1"). prop("checked", false); //toggle unit switch
+        // $("#customSwitch1"). prop("checked", false); 
         temp = convertCelcius(JSON.parse(weather.list[0].main.temp));
         kHighs.forEach(function(high) {
           highs.push(convertCelcius(high));
@@ -392,11 +396,11 @@ function cityClickListener() {
     });
     //clear btn
   $('.clear').click(function() { 
-    var confirmation = confirm('Sure you wanna reset the search history?');
-    if (confirmation) {
+    // var confirmation = confirm('Sure you wanna reset the search history?');
+    // if (confirmation) {
     localStorage.clear();
     location.reload();
-    }
+    // }
   });
 };
 
