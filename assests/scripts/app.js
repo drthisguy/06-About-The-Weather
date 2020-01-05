@@ -54,20 +54,13 @@ $(document).ready( function() {
     //       marker = new google.maps.Marker({position: location, map: displayMap});
     //  };
     function paintWeather(weather) {
-      var temp = document.querySelector('.temp'),
-          location = document.querySelector('.location'),
-          description = document.querySelector('.description'),
-          high = document.querySelector('.high'),
-          humidity = document.querySelector('.humidity'),
-          icon = document.querySelector('.icon'),
-          wind = document.querySelector('.wind');
 
-      location.textContent = ""+weather.city.name+", "+weather.city.country+"";
-      description.textContent = weather.list[0].weather[0].description;
-      humidity.textContent = "Relative Humidity: "+weather.list[0].main.humidity+"%";
-      temp.textContent = convertKelvin(JSON.parse(weather.list[0].main.temp));
-      icon.setAttribute('src', "http://openweathermap.org/img/w/"+weather.list[0].weather[0].icon+".png");
-
+      $('.temp').text(convertKelvin(JSON.parse(weather.list[0].main.temp)));
+      $('.location').text(""+weather.city.name+", "+weather.city.country+"");
+      $('.description').text(weather.list[0].weather[0].description);
+      $('.humidity').text("Relative Humiddity "+weather.list[0].main.humidity+"%");
+      $('.icon').attr('src', "http://openweathermap.org/img/w/"+weather.list[0].weather[0].icon+".png");
+     
     var highs = getHighTemps(weather),
         lows = getLowTemps(weather),
         indices = getMiddayIndices(weather);
@@ -76,10 +69,7 @@ $(document).ready( function() {
         highs[4] = 'Insufficient Data';
         lows[4] = 'Check back soon';
         indices.push(weather.list.length - 1);
-        $('.icon-5').attr('src', "/assests/pics/drunk_simpsons.jpg !important");
-      }console.log(indices);
-      console.log(highs);
-      
+      }
       
       //day of week for extended forcast
       $('.day-1').text(moment().add(1, 'days').format('dddd'));
