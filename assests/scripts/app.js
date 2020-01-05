@@ -6,7 +6,7 @@ $(document).ready( function() {
         
 
     
-    //listen to 
+    //listen to toggle for unit change
     $('#customSwitch1').change(function() {
       var unit = document.getElementById('customSwitch1').checked ? 'fahrenheit' : 'celcius',
           currentCityEl = document.querySelector('li.active'),
@@ -18,30 +18,28 @@ $(document).ready( function() {
             unit : unit
           };
       getWeather(city);
-          
-    });
-    setMapCanvas();
+              
+        });
+      
+  setMapCanvas();
+  loadCites();
+  function setUsersCurrentPosition() {
+    geo.getCurrentPosition(function(position) {
+    lat = position.coords.latitude;
+    lng = position.coords.longitude;
 
-    function setUsersCurrentPosition() {
-      geo.getCurrentPosition(function(position) {
-      lat = position.coords.latitude;
-      lng = position.coords.longitude;
-
-      $.ajax({       
-        url: "https://maps.googleapis.com/maps/api/geocode/json?latlng="+lat+","+lng+"&key="+googApiKey+"",
-        method: "GET"
-      })
-        .then(function(response) {
-          console.log(response);
-          var name = response.results.address_components[3].long_name,
-              country = response.results.address_components[6].long_name,
-              place = {
-                name : name,
-                country : country,
-                unit : 'fehrenheit'
-              };
-              getWeather(place);
-  })})};
+  $.ajax({   
+    url: "http://api.openweathermap.org/data/2.5/forecast?lat="+lat+"&lon="+lng+"&appid="+weatherKey+"",
+    method: "GET"
+  })
+    .then(function(weather) {
+        //working with what ya have.
+        var map = {lat : lat, lng : lng},
+            city = {name : weather.city.name, 
+                   country : weather.city.country} 
+          initMap(map);
+          paintWeather(weather, city);
+    })})};
     function getWeather(city) {
 
        //get location specifics from google first. This will allow for more definite results. Users can misspell input, use state or country OR neither.  They can also use abbreviations.. (e.g. 'philly'), etc. 
@@ -54,10 +52,10 @@ $(document).ready( function() {
                  city.name = response.results[0].formatted_address;
                  city.country = response.results[0].address_components[response.results[0].address_components.length - 1].long_name; 
                  console.log(response.results[0].geometry.location);
-                initMap(response);
+                initMap(response.results[0].geometry.location);
                  
                  
-                console.log(city.name, city.country);
+                console.log(city.name, city.country, city.unit);
                 
             $.ajax({   
                     url: "http://api.openweathermap.org/data/2.5/forecast?q="+city.name+","+city.country+"&APPID="+weatherKey+"",
@@ -66,7 +64,7 @@ $(document).ready( function() {
                     .then(function(weather) {
                         console.log(weather);
                     
-                    paintWeather(weather, city, response);
+                    paintWeather(weather, city);
                  });
                 //get and set new city list
                 getCites(city);
@@ -78,17 +76,17 @@ $(document).ready( function() {
   function setMapCanvas() {
     var script = document.createElement('script');
         script.setAttribute('type', 'text/javascript');
-        script.src = "https://maps.googleapis.com/maps/api/js?callback=initMap&key=AIzaSyCI3zv9mMZuVUPGueGVIYUyD3etz0VJK7I";
+        script.src = "https://maps.googleapis.com/maps/api/js?callback=initMap&key="+googApiKey+"";
         document.getElementsByTagName('head')[0].appendChild(script);
    };
   function initMap(map) {
-    var location = map.results[0].geometry.location,
+    var location = map,
         displayMap = new google.maps.Map(document.getElementById('map'), {zoom: 10, center: location,  disableDefaultUI: true}),
         marker = new google.maps.Marker({position: location, map: displayMap}); 
     };
     
     
-    function paintWeather(weather, city, response) {
+    function paintWeather(weather, city) {
       var temp, highs = [], lows = [],
           kHighs = getHighTemps(weather),
           kLows = getLowTemps(weather),
@@ -96,6 +94,7 @@ $(document).ready( function() {
     
       console.log(highs, lows, indices);
       if (city.unit === 'fahrenheit') {
+        $("#customSwitch1"). prop("checked", true); //toggle unit switch
         temp = converFahrenheit(JSON.parse(weather.list[0].main.temp));
         kHighs.forEach(function(high) {
           highs.push(converFahrenheit(high));
@@ -104,6 +103,7 @@ $(document).ready( function() {
           lows.push(converFahrenheit(low));
         })
       } else {
+        $("#customSwitch1"). prop("checked", false); //toggle unit switch
         temp = convertCelcius(JSON.parse(weather.list[0].main.temp));
         kHighs.forEach(function(high) {
           highs.push(convertCelcius(high));
@@ -121,7 +121,7 @@ $(document).ready( function() {
       }
       //current weather information
       $('.temp').text(temp);
-      $('.location').text(""+weather.city.name+", "+weather.city.country+"");
+      $('.location').text(""+city.name+", "+city.country+"");
       $('.description').text(weather.list[0].weather[0].description);
       $('.humidity').text("Relative Humiddity "+weather.list[0].main.humidity+"%");
       $('.icon').attr('src', "http://openweathermap.org/img/w/"+weather.list[0].weather[0].icon+".png");      
@@ -294,18 +294,18 @@ function getMiddayIndices(weather) {
       city.country = city.country.replace(",", " \,");
       cities.push(city); 
       //check for and remove duplicate cities.
-      cities = removeDupes(cities);
+      // cities = removeDupes(cities);
       localStorage.setItem("cities", JSON.stringify(cities));
     };
 
 function loadCites() {
-  var cities;
+  var cities =[];
   if (localStorage.getItem("cities") === null) {
-    GetUserPosition();
+    setUsersCurrentPosition();
   } else {
     cities = JSON.parse(localStorage.getItem("cities"));
+    getWeather(cities[cities.length-1]);
   }
-  getCites(cities[cities.length-1]);
  };
 
   function getCites(city) {
@@ -316,7 +316,7 @@ function loadCites() {
     cities = JSON.parse(localStorage.getItem("cities"));
   }
   cities.push(city);
-
+  cities = removeDupes(cities);
   document.querySelector("#city-list").textContent = "";  //reset current list
   //generate new list
   var container = document.getElementById("city-list"),
