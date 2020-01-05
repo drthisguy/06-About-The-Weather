@@ -11,6 +11,7 @@
   crossorigin="anonymous"></script>
 
     <link href="https://stackpath.bootstrapcdn.com/bootswatch/4.4.1/flatly/bootstrap.min.css" rel="stylesheet" integrity="sha384-yrfSO0DBjS56u5M+SjWTyAHujrkiYVtRYh2dtB3yLQtUz3bodOeialO59u5lUCFF" crossorigin="anonymous">
+    <link rel="stylesheet" href="assests/styles/style.css">
 </head>
     
 <body>
@@ -36,6 +37,8 @@
                      </div> 
                     <div class="col-md-9">
                         <div class="jumbotron">
+                          <div class="row">
+                            <div class="div">
                             <h1 class="display-3 temp">Temp F</h1> 
                             <p class="lead location">Location.</p>
                             <hr class="my-4">
@@ -46,6 +49,13 @@
                               <a class="btn btn-primary btn-lg" href="#" role="button">Update Weather</a>
                             </p>
                           </div>
+                          <div class="col">
+                            <div id="map-viewer">
+                            <div id="map"></div>
+                          </div>
+                          </div>
+                        </div>
+                      </div>
                         <div class="row extended">
                             <div class="col">
                             <div class="card border-secondary mb-3" style="max-width: 20rem;">
@@ -103,10 +113,27 @@
                               </div>
                             </div>
                         </div>
-                    
                 </div>
             </div>
         </div>
+        <script>
+          // Initialize and add the map
+          function initMap() {
+            // The location of Uluru
+            var uluru = {lat: 51.5073509, lng: -0.1277583};
+            // The map, centered at Uluru
+            var map = new google.maps.Map(document.getElementById('map'), {zoom: 10, center: uluru, disableDefaultUI: true});
+            // The marker, positioned at Uluru
+            var marker = new google.maps.Marker({position: uluru, map: map});
+            
+            console.log(marker);
+            
+          }
+          
+              </script>
+        <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCI3zv9mMZuVUPGueGVIYUyD3etz0VJK7I&callback=initMap">
+        </script>
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
 <script src="assests/scripts/app.js"></script>

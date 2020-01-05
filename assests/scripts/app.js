@@ -26,7 +26,9 @@ $(document).ready( function() {
                  console.log(response);
                  city.name = response.results[0].formatted_address;
                  city.country = response.results[0].address_components[response.results[0].address_components.length - 1].long_name; 
-
+                 console.log(response.results[0].geometry.location);
+                // initMap();
+                 
                  
                 console.log(city.name, city.country);
                 
@@ -45,6 +47,12 @@ $(document).ready( function() {
           })
         
     };
+
+    // function initMap(map) {
+    //   var location = map.results[0].geometry.location,
+    //       displayMap = new google.maps.Map(document.getElementById('map'), {zoom: 4, center: location}),
+    //       marker = new google.maps.Marker({position: location, map: displayMap});
+    //  };
     function paintWeather(weather) {
       var temp = document.querySelector('.temp'),
           location = document.querySelector('.location'),
@@ -82,20 +90,20 @@ $(document).ready( function() {
       $('.low-3').text('Low: '+lows[2]);
       $('.low-4').text('Low: '+lows[3]);
       $('.low-5').text('Low: '+lows[4]);
-
+      //icons for extended forcast
       $('.icon-1').attr('src', "http://openweathermap.org/img/w/"+weather.list[indices[0]].weather[0].icon+".png");
       $('.icon-2').attr('src', "http://openweathermap.org/img/w/"+weather.list[indices[1]].weather[0].icon+".png");
       $('.icon-3').attr('src', "http://openweathermap.org/img/w/"+weather.list[indices[2]].weather[0].icon+".png");
       $('.icon-4').attr('src', "http://openweathermap.org/img/w/"+weather.list[indices[3]].weather[0].icon+".png");
       $('.icon-5').attr('src', "http://openweathermap.org/img/w/"+weather.list[indices[4]].weather[0].icon+".png");
-
-      $('.descript-1').text(weather.list[indices[0]].weather[0].description)
-      $('.descript-2').text(weather.list[indices[1]].weather[0].description)
-      $('.descript-3').text(weather.list[indices[2]].weather[0].description)
-      $('.descript-4').text(weather.list[indices[3]].weather[0].description)
-      $('.descript-5').text(weather.list[indices[4]].weather[0].description)
+      //descriptions for extended forcast
+      $('.descript-1').text(weather.list[indices[0]].weather[0].description);
+      $('.descript-2').text(weather.list[indices[1]].weather[0].description);
+      $('.descript-3').text(weather.list[indices[2]].weather[0].description);
+      $('.descript-4').text(weather.list[indices[3]].weather[0].description);
+      $('.descript-5').text(weather.list[indices[4]].weather[0].description);
     }
-
+//get daily high temperatures
 function getHighTemps(weather) {
   
   var now = new Date(),
@@ -145,73 +153,73 @@ function getHighTemps(weather) {
       })
       return fiveDayHighs;
   };
-
-  function getLowTemps(weather) {
-      
-  var now = new Date(),
-  sunTemps = [], monTemps = [], tueTemps = [], wedTemps = [],
-  thurTemps = [], friTemps = [], satTemps = [];
-      
-  weather.list.forEach( function(timeOfDay) {
-    var future  = new Date(timeOfDay.dt*1000);
-        
-    if (future.getDay() !== now.getDay()) {
-        switch (future.getDay()) {
-          case 0:
-            sunTemps.push(timeOfDay.main.temp);
-            break;
-          case 1:
-            monTemps.push(timeOfDay.main.temp);
-            break;
-          case 2:
-            tueTemps.push(timeOfDay.main.temp);
-            break;
-          case 3:
-            wedTemps.push(timeOfDay.main.temp);
-            break;
-          case 4:
-            thurTemps.push(timeOfDay.main.temp);
-            break;
-          case 5:
-            friTemps.push(timeOfDay.main.temp);      
-            break;             
-          case 6:
-            satTemps.push(timeOfDay.main.temp);
-        }                
-      } 
-  });
-  var lows = [sunLow  = Math.min.apply(null, sunTemps),
-              monLow  = Math.min.apply(null, monTemps),
-              tueLow  = Math.min.apply(null, tueTemps),
-              wedLow  = Math.min.apply(null, wedTemps),
-              thurLow  = Math.min.apply(null, thurTemps),
-              friLow  = Math.min.apply(null, friTemps),
-              satLow  = Math.min.apply(null, satTemps)],
-              fiveDayLows = [];
+//get daily low temperatures
+function getLowTemps(weather) {
     
-  lows.forEach(function(low) {
-    if (isFinite(low))
-    fiveDayLows.push(low);
-  })
-  return fiveDayLows;   
-  };
+var now = new Date(),
+sunTemps = [], monTemps = [], tueTemps = [], wedTemps = [],
+thurTemps = [], friTemps = [], satTemps = [];
+    
+weather.list.forEach( function(timeOfDay) {
+  var future  = new Date(timeOfDay.dt*1000);
+      
+  if (future.getDay() !== now.getDay()) {
+      switch (future.getDay()) {
+        case 0:
+          sunTemps.push(timeOfDay.main.temp);
+          break;
+        case 1:
+          monTemps.push(timeOfDay.main.temp);
+          break;
+        case 2:
+          tueTemps.push(timeOfDay.main.temp);
+          break;
+        case 3:
+          wedTemps.push(timeOfDay.main.temp);
+          break;
+        case 4:
+          thurTemps.push(timeOfDay.main.temp);
+          break;
+        case 5:
+          friTemps.push(timeOfDay.main.temp);      
+          break;             
+        case 6:
+          satTemps.push(timeOfDay.main.temp);
+      }                
+    } 
+});
+var lows = [sunLow  = Math.min.apply(null, sunTemps),
+            monLow  = Math.min.apply(null, monTemps),
+            tueLow  = Math.min.apply(null, tueTemps),
+            wedLow  = Math.min.apply(null, wedTemps),
+            thurLow  = Math.min.apply(null, thurTemps),
+            friLow  = Math.min.apply(null, friTemps),
+            satLow  = Math.min.apply(null, satTemps)],
+            fiveDayLows = [];
   
-  function getMiddayIndices(weather) {
-    var now = new Date(),
-        indices = [],
-        midday = [];
+lows.forEach(function(low) {
+  if (isFinite(low))
+  fiveDayLows.push(low);
+})
+return fiveDayLows;   
+};
+//get the indicies of each midday point for extended forcast data
+function getMiddayIndices(weather) {
+  var now = new Date(),
+      indices = [],
+      midday = [];
 
-        weather.list.forEach( function(timeOfDay) {
-          var future  = new Date(timeOfDay.dt*1000);
-          if (future.getDay() !== now.getDay()) {
-              indices.push(weather.list.indexOf(timeOfDay));
-          }})
-        for (var i = (weather.list.length - indices.length); i < indices.length;) {
-          midday.push(indices[i]);
-          i=i+8;
-        }
-     return midday;     
-  }
+      weather.list.forEach( function(timeOfDay) {
+        var future  = new Date(timeOfDay.dt*1000);
+        if (future.getDay() !== now.getDay()) {
+            indices.push(weather.list.indexOf(timeOfDay));
+        }})
+      for (var i = (weather.list.length - indices.length); i < indices.length;) {
+        midday.push(indices[i]);
+        i=i+8;
+      }
+  return midday;     
+}
     //convert kelvin to Fahrenheit and Celcius 
     function convertKelvin (kelvin) {
       var cTemp = Math.round(kelvin-273.15),
