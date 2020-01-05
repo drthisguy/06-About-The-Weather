@@ -57,11 +57,9 @@ $(document).ready( function() {
         document.getElementsByTagName('head')[0].appendChild(script);
    };
   function initMap(map) {
-    
     var location = map.results[0].geometry.location,
         displayMap = new google.maps.Map(document.getElementById('map'), {zoom: 10, center: location,  disableDefaultUI: true}),
-        marker = new google.maps.Marker({position: location, map: displayMap});
-        
+        marker = new google.maps.Marker({position: location, map: displayMap}); 
     };
     
     
@@ -91,6 +89,7 @@ $(document).ready( function() {
           lows.push(convertCelcius(low));
         })
       }
+      //hide day 5 when data is insuffiecient
       if (indices.length < 5) {
         $('.no-info').hide();
         indices.push(weather.list.length-1);
@@ -131,7 +130,6 @@ $(document).ready( function() {
       $('.descript-3').text(weather.list[indices[2]].weather[0].description);
       $('.descript-4').text(weather.list[indices[3]].weather[0].description);
       $('.descript-5').text(weather.list[indices[4]].weather[0].description);
-      
     }
 //get daily high temperatures
 function getHighTemps(weather) {
@@ -240,8 +238,10 @@ function getMiddayIndices(weather) {
 
       weather.list.forEach( function(timeOfDay) {
         var future  = new Date(timeOfDay.dt*1000);  
-        if (future.getDay() !== now.getDay() && (future.getHours() >= 12) && (future.getHours() <= 14)) {
+        if (future.getDay() !== now.getDay() && (future.getHours() >= 12 && future.getHours() <= 14)) {
             indices.push(weather.list.indexOf(timeOfDay));
+            console.log(future);
+            
         }})
   //returns only times between 12 & 2pm. of which, are mutually exclusive
   return indices;     
@@ -325,11 +325,14 @@ function removeDupes(arr) {
 //ES6 magic used to remove dulicate objects from the array.
   var nameArr = [...(new Set(arr.map(({ name }) => name)))],
       countryArr = [...(new Set(arr.map(({ country }) => country)))],
+      unitArr = [...(new Set(arr.map(({ unit }) => unit)))];
       purgedArray = [];
  
 //Reestablish the original object format from the data sets.  
     for (var i = 0; i < nameArr.length; i++) {
-      var obj = { name : nameArr[i] , country : countryArr[i]};
+      var obj = { name : nameArr[i] , 
+                  country : countryArr[i], 
+                  unit : unitArr[i]};
       purgedArray.push(obj);
     }
   return purgedArray;
@@ -337,22 +340,27 @@ function removeDupes(arr) {
 
  //event listener for city list
 function cityClickListener() {
-  var listItems = document.querySelectorAll(".list-group-item");
+  var listItems = document.querySelectorAll(".list-group-item"),
+      unit = document.getElementById('customSwitch1').checked ? 'fahrenheit' : 'celcius';
 
   listItems.forEach(function (city) {
     city.addEventListener("click", function (event) {
       var click = event.currentTarget,
           cityObj = {
           name : click.textContent,
-          country : click.getAttribute('data-country')
+          country : click.getAttribute('data-country'),
+          unit : unit
           } 
         getWeather(cityObj);
       })
     });
-    //clear btn~
+    //clear btn
   $('.clear').click(function() { 
+    var confirmation = confirm('Sure you wanna reset the search history?');
+    if (confirmation) {
     localStorage.clear();
     location.reload();
+    }
   });
 };
 
