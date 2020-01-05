@@ -12,14 +12,12 @@ $(document).ready( function() {
 
         // url: "http://api.openweathermap.org/data/2.5/weather?lat="+lat+"&lon="+lng+"&appid="+weatherKey+"",
     })};
+
     // getWeather();
-    var js_file = document.createElement('script');
-          js_file.setAttribute('type', 'text/javascript');
-          js_file.src = "https://maps.googleapis.com/maps/api/js?callback=initMap&key=AIzaSyCI3zv9mMZuVUPGueGVIYUyD3etz0VJK7I";
-          document.getElementsByTagName('head')[0].appendChild(js_file);
+    setMapCanvas();
     function getWeather(city) {
 
-
+      
        //get location specifics from google first. This will allow for more definite results. Users can misspell input, use state or country OR neither.  They can also use abbreviations.. (e.g. 'philly'), etc. 
 
        $.ajax({       
@@ -52,11 +50,19 @@ $(document).ready( function() {
         
     };
 
+  function setMapCanvas() {
+    var script = document.createElement('script');
+        script.setAttribute('type', 'text/javascript');
+        script.src = "https://maps.googleapis.com/maps/api/js?callback=initMap&key=AIzaSyCI3zv9mMZuVUPGueGVIYUyD3etz0VJK7I";
+        document.getElementsByTagName('head')[0].appendChild(script);
+   };
   function initMap(map) {
+    
     var location = map.results[0].geometry.location,
-    displayMap = new google.maps.Map(document.getElementById('map'), {zoom: 10, center: location,  disableDefaultUI: true}),
-    marker = new google.maps.Marker({position: location, map: displayMap});
- };
+        displayMap = new google.maps.Map(document.getElementById('map'), {zoom: 10, center: location,  disableDefaultUI: true}),
+        marker = new google.maps.Marker({position: location, map: displayMap});
+        
+    };
     
     
     function paintWeather(weather) {
