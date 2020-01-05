@@ -90,13 +90,10 @@ $(document).ready( function() {
         kLows.forEach(function(low) {
           lows.push(convertCelcius(low));
         })
-
-        if (indices.length < 5) {
-          highs[4] = 'Insufficient Data';
-          lows[4] = 'Check back soon';
-          indices.push(weather.list.length - 1);
-        }
-  
+      }
+      if (indices.length < 5) {
+        $('.no-info').hide();
+        indices.push(weather.list.length-1);
       }
       //current weather information
       $('.temp').text(temp);
@@ -134,6 +131,7 @@ $(document).ready( function() {
       $('.descript-3').text(weather.list[indices[2]].weather[0].description);
       $('.descript-4').text(weather.list[indices[3]].weather[0].description);
       $('.descript-5').text(weather.list[indices[4]].weather[0].description);
+      
     }
 //get daily high temperatures
 function getHighTemps(weather) {
@@ -248,16 +246,16 @@ function getMiddayIndices(weather) {
   //returns only times between 12 & 2pm. of which, are mutually exclusive
   return indices;     
 }
-    //convert kelvin to Fahrenheit and Celcius 
-    function convertCelcius (kelvin) {
-      var cTemp = Math.round(kelvin-273.15);
-      return `${cTemp}\xB0C`;
-    }
-    function converFahrenheit(kelvin) {
-      fTemp = Math.round((kelvin-273.15)*9/5 +32);
-      return `${fTemp}\xB0F`;
-     };
-
+  //convert kelvin to Fahrenheit and Celcius
+  function converFahrenheit(kelvin) {
+    fTemp = Math.round((kelvin-273.15)*9/5 +32);
+    return `${fTemp}\xB0F`;
+    }; 
+  function convertCelcius (kelvin) {
+    var cTemp = Math.round(kelvin-273.15);
+    return `${cTemp}\xB0C`;
+  };
+  
     function setCityInLS(city) {
       var cities;
       if (localStorage.getItem("cities") === null) {
