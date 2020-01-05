@@ -2,24 +2,49 @@ $(document).ready( function() {
 
     var geo = navigator.geolocation
         googApiKey = 'AIzaSyCI3zv9mMZuVUPGueGVIYUyD3etz0VJK7I',
-        weatherKey = '63df9b45298d8782d0474639d201179f',
+        weatherKey = '63df9b45298d8782d0474639d201179f';
         
 
-    function GetUserPosition() {
-        geo.getCurrentPosition(function(position) {
-        lat = position.coords.latitude;
-        lng = position.coords.longitude;
-
-        // url: "http://api.openweathermap.org/data/2.5/weather?lat="+lat+"&lon="+lng+"&appid="+weatherKey+"",
-    })};
-
-    // getWeather();
+    
+    //listen to 
+    $('#customSwitch1').change(function() {
+      var unit = document.getElementById('customSwitch1').checked ? 'fahrenheit' : 'celcius',
+          currentCityEl = document.querySelector('li.active'),
+          country = currentCityEl.getAttribute('data-country'),
+          name = currentCityEl.textContent,
+          city = {
+            name : name,
+            country : country,
+            unit : unit
+          };
+      getWeather(city);
+          
+    });
     setMapCanvas();
+
+    function setUsersCurrentPosition() {
+      geo.getCurrentPosition(function(position) {
+      lat = position.coords.latitude;
+      lng = position.coords.longitude;
+
+      $.ajax({       
+        url: "https://maps.googleapis.com/maps/api/geocode/json?latlng="+lat+","+lng+"&key="+googApiKey+"",
+        method: "GET"
+      })
+        .then(function(response) {
+          console.log(response);
+          var name = response.results.address_components[3].long_name,
+              country = response.results.address_components[6].long_name,
+              place = {
+                name : name,
+                country : country,
+                unit : 'fehrenheit'
+              };
+              getWeather(place);
+  })})};
     function getWeather(city) {
 
-      
        //get location specifics from google first. This will allow for more definite results. Users can misspell input, use state or country OR neither.  They can also use abbreviations.. (e.g. 'philly'), etc. 
-
        $.ajax({       
                url: "https://maps.googleapis.com/maps/api/geocode/json?address="+city.name+",+"+city.country+"&key="+googApiKey+"",
                method: "GET"
@@ -271,7 +296,17 @@ function getMiddayIndices(weather) {
       //check for and remove duplicate cities.
       cities = removeDupes(cities);
       localStorage.setItem("cities", JSON.stringify(cities));
-    }
+    };
+
+function loadCites() {
+  var cities;
+  if (localStorage.getItem("cities") === null) {
+    GetUserPosition();
+  } else {
+    cities = JSON.parse(localStorage.getItem("cities"));
+  }
+  getCites(cities[cities.length-1]);
+ };
 
   function getCites(city) {
   var cities;
@@ -295,6 +330,7 @@ function getMiddayIndices(weather) {
    currentCityEl.className = 
    "list-group-item list-group-item-action active mt-4";  
    currentCityEl.appendChild(document.createTextNode(cities[cities.length - 1].name));
+   currentCityEl.setAttribute('data-country', cities[cities.length - 1].country);
    ul.appendChild(currentCityEl);
   
   
