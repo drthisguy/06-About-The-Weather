@@ -13,6 +13,10 @@ $(document).ready( function() {
         // url: "http://api.openweathermap.org/data/2.5/weather?lat="+lat+"&lon="+lng+"&appid="+weatherKey+"",
     })};
     // getWeather();
+    var js_file = document.createElement('script');
+          js_file.setAttribute('type', 'text/javascript');
+          js_file.src = "https://maps.googleapis.com/maps/api/js?callback=initMap&key=AIzaSyCI3zv9mMZuVUPGueGVIYUyD3etz0VJK7I";
+          document.getElementsByTagName('head')[0].appendChild(js_file);
     function getWeather(city) {
 
 
@@ -27,7 +31,7 @@ $(document).ready( function() {
                  city.name = response.results[0].formatted_address;
                  city.country = response.results[0].address_components[response.results[0].address_components.length - 1].long_name; 
                  console.log(response.results[0].geometry.location);
-                // initMap();
+                initMap(response);
                  
                  
                 console.log(city.name, city.country);
@@ -48,11 +52,13 @@ $(document).ready( function() {
         
     };
 
-    // function initMap(map) {
-    //   var location = map.results[0].geometry.location,
-    //       displayMap = new google.maps.Map(document.getElementById('map'), {zoom: 4, center: location}),
-    //       marker = new google.maps.Marker({position: location, map: displayMap});
-    //  };
+  function initMap(map) {
+    var location = map.results[0].geometry.location,
+    displayMap = new google.maps.Map(document.getElementById('map'), {zoom: 10, center: location,  disableDefaultUI: true}),
+    marker = new google.maps.Marker({position: location, map: displayMap});
+ };
+    
+    
     function paintWeather(weather) {
 
       $('.temp').text(convertKelvin(JSON.parse(weather.list[0].main.temp)));

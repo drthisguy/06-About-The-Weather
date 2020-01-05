@@ -9,7 +9,7 @@
   src="https://code.jquery.com/jquery-3.4.1.min.js"
   integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
   crossorigin="anonymous"></script>
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
     <link href="https://stackpath.bootstrapcdn.com/bootswatch/4.4.1/flatly/bootstrap.min.css" rel="stylesheet" integrity="sha384-yrfSO0DBjS56u5M+SjWTyAHujrkiYVtRYh2dtB3yLQtUz3bodOeialO59u5lUCFF" crossorigin="anonymous">
     <link rel="stylesheet" href="assests/styles/style.css">
 </head>
@@ -116,25 +116,6 @@
                 </div>
             </div>
         </div>
-        <script>
-          // Initialize and add the map
-          function initMap() {
-            // The location of Uluru
-            var uluru = {lat: 51.5073509, lng: -0.1277583};
-            // The map, centered at Uluru
-            var map = new google.maps.Map(document.getElementById('map'), {zoom: 10, center: uluru, disableDefaultUI: true});
-            // The marker, positioned at Uluru
-            var marker = new google.maps.Marker({position: uluru, map: map});
-            
-            console.log(marker);
-            
-          }
-          
-              </script>
-        <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCI3zv9mMZuVUPGueGVIYUyD3etz0VJK7I&callback=initMap">
-        </script>
 </body>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
 <script src="assests/scripts/app.js"></script>
 </html>
