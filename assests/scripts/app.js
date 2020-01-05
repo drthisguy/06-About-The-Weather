@@ -72,6 +72,15 @@ $(document).ready( function() {
         lows = getLowTemps(weather),
         indices = getMiddayIndices(weather);
       console.log(highs, lows, indices);
+      if (indices.length < 5) {
+        highs[4] = 'Insufficient Data';
+        lows[4] = 'Check back soon';
+        indices.push(weather.list.length - 1);
+        $('.icon-5').attr('src', "/assests/pics/drunk_simpsons.jpg !important");
+      }console.log(indices);
+      console.log(highs);
+      
+      
       //day of week for extended forcast
       $('.day-1').text(moment().add(1, 'days').format('dddd'));
       $('.day-2').text(moment().add(2, 'days').format('dddd'));
@@ -206,19 +215,15 @@ return fiveDayLows;
 //get the indicies of each midday point for extended forcast data
 function getMiddayIndices(weather) {
   var now = new Date(),
-      indices = [],
-      midday = [];
+      indices = [];
 
       weather.list.forEach( function(timeOfDay) {
-        var future  = new Date(timeOfDay.dt*1000);
-        if (future.getDay() !== now.getDay()) {
+        var future  = new Date(timeOfDay.dt*1000);  
+        if (future.getDay() !== now.getDay() && (future.getHours() >= 12) && (future.getHours() <= 14)) {
             indices.push(weather.list.indexOf(timeOfDay));
         }})
-      for (var i = (weather.list.length - indices.length); i < indices.length;) {
-        midday.push(indices[i]);
-        i=i+8;
-      }
-  return midday;     
+  //returns only times between 12 & 2pm. of which, are mutually exclusive
+  return indices;     
 }
     //convert kelvin to Fahrenheit and Celcius 
     function convertKelvin (kelvin) {
