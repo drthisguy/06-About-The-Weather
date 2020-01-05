@@ -41,7 +41,7 @@ $(document).ready( function() {
                     .then(function(weather) {
                         console.log(weather);
                     
-                    paintWeather(weather);
+                    paintWeather(weather, city, response);
                  });
                 //get and set new city list
                 getCites(city);
@@ -65,24 +65,45 @@ $(document).ready( function() {
     };
     
     
-    function paintWeather(weather) {
+    function paintWeather(weather, city, response) {
+      var temp, highs = [], lows = [],
+          kHighs = getHighTemps(weather),
+          kLows = getLowTemps(weather),
+          indices = getMiddayIndices(weather);
+    
+      console.log(highs, lows, indices);
+      if (city.unit === 'fahrenheit') {
+        temp = converFahrenheit(JSON.parse(weather.list[0].main.temp));
+        kHighs.forEach(function(high) {
+          highs.push(converFahrenheit(high));
+        })
+        kLows.forEach(function(low) {
+          lows.push(converFahrenheit(low));
+        })
+      } else {
+        temp = convertCelcius(JSON.parse(weather.list[0].main.temp));
+        kHighs.forEach(function(high) {
+          highs.push(convertCelcius(high));
+        })
+        console.log(highs);
+        
+        kLows.forEach(function(low) {
+          lows.push(convertCelcius(low));
+        })
 
-      $('.temp').text(convertKelvin(JSON.parse(weather.list[0].main.temp)));
+        if (indices.length < 5) {
+          highs[4] = 'Insufficient Data';
+          lows[4] = 'Check back soon';
+          indices.push(weather.list.length - 1);
+        }
+  
+      }
+      //current weather information
+      $('.temp').text(temp);
       $('.location').text(""+weather.city.name+", "+weather.city.country+"");
       $('.description').text(weather.list[0].weather[0].description);
       $('.humidity').text("Relative Humiddity "+weather.list[0].main.humidity+"%");
-      $('.icon').attr('src', "http://openweathermap.org/img/w/"+weather.list[0].weather[0].icon+".png");
-     
-    var highs = getHighTemps(weather),
-        lows = getLowTemps(weather),
-        indices = getMiddayIndices(weather);
-      console.log(highs, lows, indices);
-      if (indices.length < 5) {
-        highs[4] = 'Insufficient Data';
-        lows[4] = 'Check back soon';
-        indices.push(weather.list.length - 1);
-      }
-      
+      $('.icon').attr('src', "http://openweathermap.org/img/w/"+weather.list[0].weather[0].icon+".png");      
       //day of week for extended forcast
       $('.day-1').text(moment().add(1, 'days').format('dddd'));
       $('.day-2').text(moment().add(2, 'days').format('dddd'));
@@ -228,12 +249,14 @@ function getMiddayIndices(weather) {
   return indices;     
 }
     //convert kelvin to Fahrenheit and Celcius 
-    function convertKelvin (kelvin) {
-      var cTemp = Math.round(kelvin-273.15),
-          fTemp = Math.round(cTemp*9/5 +32),
-          output = `${fTemp}\xB0F  (${cTemp}\xB0C)`;
-    return output;
+    function convertCelcius (kelvin) {
+      var cTemp = Math.round(kelvin-273.15);
+      return `${cTemp}\xB0C`;
     }
+    function converFahrenheit(kelvin) {
+      fTemp = Math.round((kelvin-273.15)*9/5 +32);
+      return `${fTemp}\xB0F`;
+     };
 
     function setCityInLS(city) {
       var cities;
@@ -339,10 +362,13 @@ function cityClickListener() {
     $('#search-btn').click(function() {
         var city = $(this).siblings('#city-field').val().trim(),
             country = $(this).siblings('#country-field').val().trim();
+            unit = document.getElementById('customSwitch1').checked ? 'fahrenheit' : 'celcius',
             city = {
               name : city,
-              country : country
-            }
+              country : country,
+              unit : unit
+            };
+            
             //clear fields
             $(this).siblings('#city-field').val('');
             $(this).siblings('#country-field').val('');
