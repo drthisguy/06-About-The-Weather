@@ -108,7 +108,7 @@ function getWeather(city) {
   setCityInLS(city);
 })};
 
-//loads with DOM to determine how to determine what's what.
+//loads with DOM to determine what's what.
 function loadCites() {
   var cities =[];
   if (localStorage.getItem("cities") === null) {
@@ -128,7 +128,7 @@ function loadCites() {
   }
   cities.push(city);
   document.querySelector("#city-list").textContent = "";  //reset current list
-  //generate new list
+  //start new list
   var container = document.getElementById("city-list"),
     currentCityEl = document.createElement("li"),
     clearBtn = document.createElement("button"),
