@@ -304,11 +304,11 @@ function paintWeather(weather, city) {
   $('.low-4').text('Low: '+lows[3]);
   $('.low-5').text('Low: '+lows[4]);
   //icons for extended forcast
-  $('.icon-1').attr('src', "http://openweathermap.org/img/w/"+weather.list[indices[0]].weather[0].icon+".png");
-  $('.icon-2').attr('src', "http://openweathermap.org/img/w/"+weather.list[indices[1]].weather[0].icon+".png");
-  $('.icon-3').attr('src', "http://openweathermap.org/img/w/"+weather.list[indices[2]].weather[0].icon+".png");
-  $('.icon-4').attr('src', "http://openweathermap.org/img/w/"+weather.list[indices[3]].weather[0].icon+".png");
-  $('.icon-5').attr('src', "http://openweathermap.org/img/w/"+weather.list[indices[4]].weather[0].icon+".png");
+  $('.icon-1').attr('src', "https://openweathermap.org/img/w/"+weather.list[indices[0]].weather[0].icon+".png");
+  $('.icon-2').attr('src', "https://openweathermap.org/img/w/"+weather.list[indices[1]].weather[0].icon+".png");
+  $('.icon-3').attr('src', "https://openweathermap.org/img/w/"+weather.list[indices[2]].weather[0].icon+".png");
+  $('.icon-4').attr('src', "https://openweathermap.org/img/w/"+weather.list[indices[3]].weather[0].icon+".png");
+  $('.icon-5').attr('src', "https://openweathermap.org/img/w/"+weather.list[indices[4]].weather[0].icon+".png");
   //descriptions for extended forcast
   $('.descript-1').text(weather.list[indices[0]].weather[0].description);
   $('.descript-2').text(weather.list[indices[1]].weather[0].description);
