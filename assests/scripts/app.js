@@ -64,7 +64,7 @@ function setUsersCurrentPosition() {
   lng = position.coords.longitude;
 //next, set their weather
   $.ajax({   
-    url: "http://api.openweathermap.org/data/2.5/forecast?lat="+lat+"&lon="+lng+"&appid="+weatherKey+"",
+    url: "https://api.openweathermap.org/data/2.5/forecast?lat="+lat+"&lon="+lng+"&appid="+weatherKey+"",
     method: "GET"
   })
     .then(function(weather) {
@@ -115,7 +115,7 @@ function getWeather(city) {
   initMap(coords);
 
   $.ajax({   
-      url: "http://api.openweathermap.org/data/2.5/forecast?lat="+lat+"&lon="+lng+"&appid="+weatherKey+"",
+      url: "https://api.openweathermap.org/data/2.5/forecast?lat="+lat+"&lon="+lng+"&appid="+weatherKey+"",
       method: "GET"
   })
       .then(function(weather) { 
