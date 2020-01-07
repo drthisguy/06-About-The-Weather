@@ -43,9 +43,16 @@ getWeather(city);
 });
 
 //listen for local weather search event
-$('.locale').click(function() {
+$(".locale").click(function() {
   setUsersCurrentPosition();
-})
+});
+
+//listen for the enter key from search fields.
+$("input").keyup(function(event) {
+  if (event.keyCode === 13) {
+    $(this).siblings('#search-btn').click();
+  }
+});
 
 //loads with DOM to determine what's what.
 function loadCites() {
@@ -55,7 +62,7 @@ function loadCites() {
   } else {
     cities = JSON.parse(localStorage.getItem("cities"));
     getWeather(cities[cities.length-1]);
-  }};
+}};
   
 //set user's current possition and weather when LS is empty
 function setUsersCurrentPosition() {
