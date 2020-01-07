@@ -3,60 +3,78 @@ var geo = navigator.geolocation;
 (googApiKey = "AIzaSyCI3zv9mMZuVUPGueGVIYUyD3etz0VJK7I"),
   (weatherKey = "63df9b45298d8782d0474639d201179f");
 
-  setMapCanvas();
-  loadCites();
+setMapCanvas();
+loadCites();
 
-  //Main event
-  $('#search-btn').click(function() {
-  var city = $(this).siblings('#city-field').val().trim(),
-      country = $(this).siblings('#country-field').val().trim();
-      unit = document.getElementById('customSwitch1').checked ? 'fahrenheit' : 'celcius',
-      city = {
-        name : city,
-        country : country,
-        unit : unit
-      };
-      
-      //clear fields
-      $(this).siblings('#city-field').val('');
-      $(this).siblings('#country-field').val('');
-
-  getWeather(city);    
-  });
-
-  //listen for toggle switch event.
- $("#customSwitch1").change(function() {
-  var unit = document.getElementById("customSwitch1").checked
-      ? "fahrenheit"
-      : "celcius",
-    currentCityEl = document.querySelector("li.active"),
-    country = currentCityEl.getAttribute("data-country"),
-    name = currentCityEl.textContent,
+//Main event
+$('#search-btn').click(function() {
+var city = $(this).siblings('#city-field').val().trim(),
+    country = $(this).siblings('#country-field').val().trim();
+    unit = document.getElementById('customSwitch1').checked ? 'fahrenheit' : 'celcius',
     city = {
-      name: name,
-      country: country,
-      unit: unit
+      id : '',
+      name : city,
+      country : country,
+      unit : unit
     };
-  getWeather(city);
+  
+    //clear fields
+    $(this).siblings('#city-field').val('');
+    $(this).siblings('#country-field').val('');
+
+getWeather(city);    
 });
 
-  //set user's current possition and weather when LS is empty
-  function setUsersCurrentPosition() {
-    geo.getCurrentPosition(function(position) {
-    lat = position.coords.latitude;
-    lng = position.coords.longitude;
-  //then, set their weather
+//listen for toggle switch event.
+$("#customSwitch1").change(function() {
+var unit = document.getElementById("customSwitch1").checked
+    ? "fahrenheit"
+    : "celcius",
+  currentCityEl = document.querySelector("li.active"),
+  country = currentCityEl.getAttribute("data-country"),
+  name = currentCityEl.textContent,
+  city = {
+    id : '',
+    name: name,
+    country: country,
+    unit: unit
+  };
+getWeather(city);
+});
+
+//listen for local weather search event
+$('.locale').click(function() {
+  setUsersCurrentPosition();
+})
+
+//loads with DOM to determine what's what.
+function loadCites() {
+  var cities =[];
+  if (localStorage.getItem("cities") === null) {
+    setUsersCurrentPosition();
+  } else {
+    cities = JSON.parse(localStorage.getItem("cities"));
+    getWeather(cities[cities.length-1]);
+  }};
+  
+//set user's current possition and weather when LS is empty
+function setUsersCurrentPosition() {
+  geo.getCurrentPosition(function(position) {
+  lat = position.coords.latitude;
+  lng = position.coords.longitude;
+//next, set their weather
   $.ajax({   
     url: "http://api.openweathermap.org/data/2.5/forecast?lat="+lat+"&lon="+lng+"&appid="+weatherKey+"",
     method: "GET"
   })
     .then(function(weather) {
         //working with what we have..
-        var map = {lat : lat, lng : lng},
-            city = {name : weather.city.name, 
+        var coords = {lat : lat, lng : lng},
+            city = {id : weather.city.id.toString(),
+                   name : weather.city.name, 
                    country : weather.city.country,
                    unit : 'fahrenheit'};
-          initMap(map);
+          initMap(coords);
           paintWeather(weather, city);
           getCites(city);
           setCityInLS(city);
@@ -72,18 +90,17 @@ function setMapCanvas() {
   document.getElementsByTagName("head")[0].appendChild(script);
 };
 
-function initMap(map) {
-  var location = map,
-    displayMap = new google.maps.Map(document.getElementById("map"), {
+function initMap(coords) {
+    var display = new google.maps.Map(document.getElementById("map"), {
       zoom: 10,
-      center: location,
+      center: coords,
       disableDefaultUI: true
     }),
-    marker = new google.maps.Marker({ position: location, map: displayMap });
+    marker = new google.maps.Marker({ position: coords, map: display });
 };
       
 function getWeather(city) {
-  //get location specifics from google first. This will allow for more definite results. Users can misspell input, use state or country OR neither.  They can also use abbreviations.. (e.g. 'philly'), etc. 
+  //get location specifics from google first to allow for more ambiguous results. Users can misspell input, use state or country OR neither, use abbreviations.. (e.g. 'philly'), etc. 
   $.ajax({       
   url: "https://maps.googleapis.com/maps/api/geocode/json?address="+city.name+",+"+city.country+"&key="+googApiKey+"",
   method: "GET"
@@ -94,29 +111,22 @@ function getWeather(city) {
     var coords = response.results[0].geometry.location,
         lat = coords.lat,
         lng = coords.lng; 
+
   initMap(coords);
 
   $.ajax({   
       url: "http://api.openweathermap.org/data/2.5/forecast?lat="+lat+"&lon="+lng+"&appid="+weatherKey+"",
       method: "GET"
   })
-      .then(function(weather) {
-      paintWeather(weather, city);
-    });
-  //get and set new city list
-  getCites(city);
-  setCityInLS(city);
-})};
+      .then(function(weather) { 
+      
+      city.id = weather.city.id.toString(); //set city id
 
-//loads with DOM to determine what's what.
-function loadCites() {
-  var cities =[];
-  if (localStorage.getItem("cities") === null) {
-    setUsersCurrentPosition();
-  } else {
-    cities = JSON.parse(localStorage.getItem("cities"));
-    getWeather(cities[cities.length-1]);
-  }};
+      paintWeather(weather, city);
+      getCites(city);
+      setCityInLS(city);
+    }); 
+})};
 
  //load cites from LS and gernerate list items.
  function getCites(city) {
@@ -127,7 +137,10 @@ function loadCites() {
     cities = JSON.parse(localStorage.getItem("cities"));
   }
   cities.push(city);
-  document.querySelector("#city-list").textContent = "";  //reset current list
+  
+  //reset current list
+  document.querySelector("#city-list").textContent = "";  
+
   //start new list
   var container = document.getElementById("city-list"),
     currentCityEl = document.createElement("li"),
@@ -136,7 +149,7 @@ function loadCites() {
 
     ul.className = "list-group";
   
-   //set current city to the active class and append.
+   //set current city to active class and append.
    currentCityEl.className = 
    "list-group-item list-group-item-action active mt-4";  
    currentCityEl.appendChild(document.createTextNode(cities[cities.length - 1].name));
@@ -144,7 +157,7 @@ function loadCites() {
    ul.appendChild(currentCityEl);
   
     //Create list for other cities
-  cities.forEach(function (city) {
+    cities.forEach(function (city) {
     var a = document.createElement("a");
 
     a.className = "list-group-item list-group-item-action";
@@ -153,8 +166,7 @@ function loadCites() {
     a.appendChild(document.createTextNode(city.name));
     if (city.name !== currentCityEl.textContent){
     ul.appendChild(a);
-    }
-  });
+    }});
     //create clear button
     clearBtn.setAttribute('type', "button")
     clearBtn.className = 'btn btn-outline-warning clear';
@@ -174,6 +186,7 @@ function cityClickListener() {
     city.addEventListener("click", function (event) {
       var click = event.currentTarget,
           cityObj = {
+          id : '',
           name : click.textContent,
           country : click.getAttribute('data-country'),
           unit : unit
@@ -198,7 +211,7 @@ function setCityInLS(city) {
       cities = JSON.parse(localStorage.getItem("cities"));
     }
     
-    //replace the commas in response date before json stringifying
+    //replace the commas in response date before json.
     city.name = city.name.replace(",", " \,");
     city.country = city.country.replace(",", " \,");
     cities.push(city); 
@@ -206,30 +219,34 @@ function setCityInLS(city) {
     cities = removeDupes(cities);
     localStorage.setItem("cities", JSON.stringify(cities));
 };
+
 //lose the dead weight.
 function removeDupes(arr) {
   //ES6 magic used to remove dulicate objects from the array.
     var nameArr = [...(new Set(arr.map(({ name }) => name)))],
         countryArr = [...(new Set(arr.map(({ country }) => country)))],
         unitArr = [...(new Set(arr.map(({ unit }) => unit)))];
+        idArr = [...(new Set(arr.map(({ id }) => id)))];
         purgedArray = [];
    
   //Reestablish the original object format from the data sets.  
       for (var i = 0; i < nameArr.length; i++) {
-        var obj = { name : nameArr[i] , 
+        var obj = { id : idArr[i],
+                    name : nameArr[i] , 
                     country : countryArr[i], 
                     unit : unitArr[i]};
         purgedArray.push(obj);
       }
     return purgedArray;
    };
-//User inyaface.
+
+//user inyaface.
 function paintWeather(weather, city) {
   var temp, highs = [], lows = [],
       kHighs = getHighTemps(weather),
       kLows = getLowTemps(weather),
       indices = getMiddayIndices(weather);
-    
+  
   if (city.unit === "fahrenheit") {
   $("#customSwitch1").prop("checked", true);
   temp = converFahrenheit(JSON.parse(weather.list[0].main.temp));
@@ -239,8 +256,8 @@ function paintWeather(weather, city) {
   kLows.forEach(function(low) {
     lows.push(converFahrenheit(low));
   });
-} else {
-  // $("#customSwitch1"). prop("checked", false);
+} else { //celcius
+  $("#customSwitch1").prop("checked", false);
   temp = convertCelcius(JSON.parse(weather.list[0].main.temp));
   kHighs.forEach(function(high) {
     highs.push(convertCelcius(high));
@@ -256,7 +273,7 @@ function paintWeather(weather, city) {
 }
   //current weather information
   $('.temp').text(temp);
-  $('.location').text(""+city.name+", "+city.country+"");
+  $('.location').text(""+city.name+"");
   $('.description').text(weather.list[0].weather[0].description);
   $('.humidity').text("Relative Humiddity "+weather.list[0].main.humidity+"%");
   $('.icon').attr('src', "http://openweathermap.org/img/w/"+weather.list[0].weather[0].icon+".png");   
@@ -296,11 +313,11 @@ function paintWeather(weather, city) {
 //convert kelvin to Fahrenheit and Celcius
 function converFahrenheit(kelvin) {
   fTemp = Math.round((kelvin-273.15)*9/5 +32);
-  return `${fTemp}\xB0F`;
+  return ""+fTemp+"\xB0F";
 }; 
 function convertCelcius (kelvin) {
   var cTemp = Math.round(kelvin-273.15);
-  return `${cTemp}\xB0C`;
+  return ""+cTemp+"\xB0C";
 };
 
 //get the indicies of each midday point for extended forcast icons and descriptions.
