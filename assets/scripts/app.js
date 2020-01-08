@@ -290,7 +290,7 @@ function paintWeather(weather, city) {
   $('.location').text(""+city.name+"");
   $('.description').text(weather.list[0].weather[0].description);
   $('.humidity').text("Relative Humiddity "+weather.list[0].main.humidity+"%");
-  $('.wind').text("Wind Speed: "+wind+"");
+  $('.wind').text(wind);
   $('.icon').attr('src', "http://openweathermap.org/img/w/"+weather.list[0].weather[0].icon+".png");   
 
   //day of week for extended forcast
