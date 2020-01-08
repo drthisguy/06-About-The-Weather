@@ -10,3 +10,7 @@ html, body {
     float: right;
     background-color:grey;
 }
+
+p.dets {
+    margin: 0px;
+}

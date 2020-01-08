@@ -26,6 +26,7 @@ getWeather(city);
 });
 
 //listen for toggle switch event.
+$("#customSwitch1").prop("checked", false);
 $("#customSwitch1").change(function() {
 var unit = document.getElementById("customSwitch1").checked
     ? "fahrenheit"
@@ -162,22 +163,22 @@ function getWeather(city) {
    currentCityEl.appendChild(document.createTextNode(cities[cities.length - 1].name));
    currentCityEl.setAttribute('data-country', cities[cities.length - 1].country);
    ul.appendChild(currentCityEl);
-  
-    //Create list for other cities
-    cities.forEach(function (city) {
-    var a = document.createElement("a");
 
-    a.className = "list-group-item list-group-item-action";
-    a.setAttribute('data-country', city.country);
-    a.setAttribute('href', '#');
-    a.appendChild(document.createTextNode(city.name));
-    if (city.name !== currentCityEl.textContent){
-    ul.appendChild(a);
-    }});
-    //create clear button
-    clearBtn.setAttribute('type', "button")
-    clearBtn.className = 'btn btn-outline-warning clear';
-    clearBtn.textContent = 'Clear History';
+  //Create list for other cities
+  cities.forEach(function (city) {
+  var a = document.createElement("a");
+
+  a.className = "list-group-item list-group-item-action";
+  a.setAttribute('data-country', city.country);
+  a.setAttribute('href', '#');
+  a.appendChild(document.createTextNode(city.name));
+  if (city.name !== currentCityEl.textContent){
+  ul.appendChild(a);
+  }});
+  //create clear button
+  clearBtn.setAttribute('type', "button")
+  clearBtn.className = 'btn btn-outline-warning clear';
+  clearBtn.textContent = 'Clear History';
 
   container.appendChild(ul);
   container.appendChild(clearBtn);
@@ -252,8 +253,12 @@ function paintWeather(weather, city) {
   var temp, highs = [], lows = [],
       kHighs = getHighTemps(weather),
       kLows = getLowTemps(weather),
-      indices = getMiddayIndices(weather);
-  
+      indices = getMiddayIndices(weather),
+      wind = metricToImperial(weather.list[0].wind.speed);
+      
+  //done seperately because of async
+  getUltraViolet(weather.city.coord);
+
   if (city.unit === "fahrenheit") {
   $("#customSwitch1").prop("checked", true);
   temp = converFahrenheit(JSON.parse(weather.list[0].main.temp));
@@ -278,11 +283,14 @@ function paintWeather(weather, city) {
   $(".no-info").hide();
   indices.push(weather.list.length - 1);
 }
+
+
   //current weather information
   $('.temp').text(temp);
   $('.location').text(""+city.name+"");
   $('.description').text(weather.list[0].weather[0].description);
   $('.humidity').text("Relative Humiddity "+weather.list[0].main.humidity+"%");
+  $('.wind').text("Wind Speed: "+wind+"");
   $('.icon').attr('src', "http://openweathermap.org/img/w/"+weather.list[0].weather[0].icon+".png");   
 
   //day of week for extended forcast
@@ -327,12 +335,30 @@ function convertCelcius (kelvin) {
   return ""+cTemp+"\xB0C";
 };
 
+//get ultra violet index
+function getUltraViolet(coords) {
+  $.ajax({   
+    url: "https://api.openweathermap.org/data/2.5/uvi?lat="+coords.lat+"&lon="+coords.lon+"&appid="+weatherKey+"",
+    method: "GET"
+})
+    .then(function(uv) { 
+      $('.uv').text("UV Index: "+uv.value+"");
+    });
+};
+
+//convert wind speeds from metric to imperial.
+function metricToImperial(speed) {
+    var converted = speed*(3600/1609.344),
+        rounded = Math.round(converted);
+    return "Wind Speed: "+rounded+"Mph";
+};
+
 //get the indicies of each midday point for extended forcast icons and descriptions.
 function getMiddayIndices(weather) {
   var now = new Date(),
       indices = [];
 
-  weather.list.forEach( function(timeOfDay) {
+  weather.list.forEach(function(timeOfDay) {
     var future  = new Date(timeOfDay.dt*1000);  
 
     if (future.getDay() !== now.getDay() && (future.getHours() >= 12 && future.getHours() <= 14)) {
