@@ -1,7 +1,7 @@
 $(document).ready( function() {
 var geo = navigator.geolocation;
-(googApiKey = "AIzaSyCI3zv9mMZuVUPGueGVIYUyD3etz0VJK7I"),
-  (weatherKey = "63df9b45298d8782d0474639d201179f");
+  googApiKey = "AIzaSyCI3zv9mMZuVUPGueGVIYUyD3etz0VJK7I",
+  weatherKey = "63df9b45298d8782d0474639d201179f";
 
 setMapCanvas();
 loadCites();
@@ -63,7 +63,7 @@ function loadCites() {
   } else {
     cities = JSON.parse(localStorage.getItem("cities"));
     getWeather(cities[cities.length-1]);
-}};
+}}
   
 //set user's current possition and weather when LS is empty
 function setUsersCurrentPosition() {
@@ -86,7 +86,7 @@ function setUsersCurrentPosition() {
           paintWeather(weather, city);
           getCites(city);
           setCityInLS(city);
-    })})};
+  })})}
 
 function setMapCanvas() {
   var script = document.createElement("script");
@@ -96,7 +96,7 @@ function setMapCanvas() {
     googApiKey +
     "";
   document.getElementsByTagName("head")[0].appendChild(script);
-};
+}
 
 function initMap(coords) {
     var display = new google.maps.Map(document.getElementById("map"), {
@@ -105,7 +105,7 @@ function initMap(coords) {
       disableDefaultUI: true
     }),
     marker = new google.maps.Marker({ position: coords, map: display });
-};
+}
       
 function getWeather(city) {
   //get location specifics from google first to allow for more ambiguous results. Users can misspell input, use state or country OR neither, use abbreviations.. (e.g. 'philly'), etc. 
@@ -134,7 +134,7 @@ function getWeather(city) {
       getCites(city);
       setCityInLS(city);
     }); 
-})};
+});}  
 
  //load cites from LS and gernerate list items.
  function getCites(city) {
@@ -176,7 +176,7 @@ function getWeather(city) {
   ul.appendChild(a);
   }});
   //create clear button
-  clearBtn.setAttribute('type', "button")
+  clearBtn.setAttribute('type', "button");
   clearBtn.className = 'btn btn-outline-warning clear';
   clearBtn.textContent = 'Clear History';
 
@@ -198,9 +198,9 @@ function cityClickListener() {
           name : click.textContent,
           country : click.getAttribute('data-country'),
           unit : unit
-          } 
+          }; 
         getWeather(cityObj);
-      })});
+      });});
   //clear btn
   $('.clear').click(function() { 
     var confirmation = confirm('Sure you wanna reset the search history?');
@@ -226,7 +226,7 @@ function setCityInLS(city) {
     //check for and remove duplicate cities.
     cities = removeDupes(cities);
     localStorage.setItem("cities", JSON.stringify(cities));
-};
+}
 
 //lose the dead weight.
 function removeDupes(arr) {
@@ -246,7 +246,7 @@ function removeDupes(arr) {
         purgedArray.push(obj);
       }
     return purgedArray;
-   };
+   }
 
 //user inyaface.
 function paintWeather(weather, city) {
@@ -255,8 +255,8 @@ function paintWeather(weather, city) {
       kLows = getLowTemps(weather),
       indices = getMiddayIndices(weather),
       wind = metricToImperial(weather.list[0].wind.speed);
-      
-  //done seperately because of async
+
+  //done seperately and not async.
   getUltraViolet(weather.city.coord);
 
   if (city.unit === "fahrenheit") {
@@ -323,17 +323,17 @@ function paintWeather(weather, city) {
   $('.descript-3').text(weather.list[indices[2]].weather[0].description);
   $('.descript-4').text(weather.list[indices[3]].weather[0].description);
   $('.descript-5').text(weather.list[indices[4]].weather[0].description);
-};
+}
 
 //convert kelvin to Fahrenheit and Celcius
 function converFahrenheit(kelvin) {
   fTemp = Math.round((kelvin-273.15)*9/5 +32);
   return ""+fTemp+"\xB0F";
-}; 
+}
 function convertCelcius (kelvin) {
   var cTemp = Math.round(kelvin-273.15);
   return ""+cTemp+"\xB0C";
-};
+}
 
 //get ultra violet index
 function getUltraViolet(coords) {
@@ -344,14 +344,14 @@ function getUltraViolet(coords) {
     .then(function(uv) { 
       $('.uv').text("UV Index: "+uv.value+"");
     });
-};
+}
 
 //convert wind speeds from metric to imperial.
 function metricToImperial(speed) {
     var converted = speed*(3600/1609.344),
         rounded = Math.round(converted);
     return "Wind Speed: "+rounded+"Mph";
-};
+}
 
 //get the indicies of each midday point for extended forcast icons and descriptions.
 function getMiddayIndices(weather) {
@@ -415,7 +415,7 @@ function getHighTemps(weather) {
         fiveDayHighs.push(high);
       })
   return fiveDayHighs;
-  };
+  }
 
   //get daily low temperatures
   function getLowTemps(weather) {
@@ -465,5 +465,5 @@ function getHighTemps(weather) {
       fiveDayLows.push(low);
       })
   return fiveDayLows;   
-  };
+  }
 });
