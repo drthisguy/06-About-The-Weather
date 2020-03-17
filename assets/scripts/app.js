@@ -1,7 +1,7 @@
 $(document).ready( function() {
 var geo = navigator.geolocation;
-  googApiKey = google,
-  weatherKey = openWeather;
+  googApiKey = ${{secret.google}},
+  weatherKey = ${{secret.openWeather}};
 
 setMapCanvas();
 loadCites();
