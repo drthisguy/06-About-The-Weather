@@ -291,7 +291,7 @@ function paintWeather(weather, city) {
   $('.description').text(weather.list[0].weather[0].description);
   $('.humidity').text("Relative Humiddity "+weather.list[0].main.humidity+"%");
   $('.wind').text(wind);
-  $('.icon').attr('src', "http://openweathermap.org/img/w/"+weather.list[0].weather[0].icon+".png");   
+  $('.icon').attr('src', "https://openweathermap.org/img/w/"+weather.list[0].weather[0].icon+".png");   
 
   //day of week for extended forcast
   $('.day-1').text(moment().add(1, 'days').format('dddd'));
