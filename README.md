@@ -19,7 +19,7 @@ style.css,
 # deployed application site:
 
 
-https://drthisguy.github.io/Homework-6/
+https://drthisguy.github.io/06-About-The-Weather
 
 
 # Screen Grabs:
