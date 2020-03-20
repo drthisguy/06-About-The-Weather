@@ -23,7 +23,9 @@ https://drthisguy.github.io/06-About-The-Weather
 
 
 # Screen Grabs:
-https://user-images.githubusercontent.com/48693333/71950454-4f6b0500-31a5-11ea-8df0-5fee265242f0.png
+![image](https://user-images.githubusercontent.com/48693333/77138879-145d3b80-6a4a-11ea-80c6-4a3bc3dc35e0.png)
+
+
 
 https://user-images.githubusercontent.com/48693333/71950484-69a4e300-31a5-11ea-9335-fda2ba761fef.png
 
