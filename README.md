@@ -4,7 +4,7 @@ Open Weather Application
 
 # Abstract
 
-This is a well-equipt weather application that provides the current weather and a five day extented forcasts. Users can save multiple citie for easy access to their weather data in the future. it will detect the user's current location and provide weather automatically when their are no previously saved cities, or on demand as a way to add a new city to their list. City locations are also displayed on google maps provided images. They can also chose between temperatures in celcius and fahrenheit. 
+This is an Openweather API, weather forecasting application that provides the current weather and a five day extended forecast. Users can save multiple cities for easy access to their weather data on future uses. it will detect the user's current location and provide weather information automatically when their are no previously saved cities, or with a click of the button.  This will also add the current city their re-loadable, search history list. Locations are also displayed on google maps powered images. Users can also select between temperatures in celsius or fahrenheit. 
 
 
 # file maifest:
@@ -17,8 +17,6 @@ style.css,
 
 
 # deployed application site:
-
-
 https://drthisguy.github.io/06-About-The-Weather
 
 
@@ -48,4 +46,3 @@ moment.js
 google maps
 http://beautifytools.com
 https://validator.w3.org/nu
-

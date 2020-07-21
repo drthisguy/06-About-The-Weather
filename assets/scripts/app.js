@@ -10,14 +10,13 @@ loadCites();
 $('#search-btn').click(function() {
 var city = $(this).siblings('#city-field').val().trim(),
     country = $(this).siblings('#country-field').val().trim();
-    unit = document.getElementById('customSwitch1').checked ? 'fahrenheit' : 'celcius',
+    unit = document.getElementById('customSwitch1').checked ? 'fahrenheit' : 'celsius',
     city = {
       id : '',
       name : city,
       country : country,
       unit : unit
     };
-  
     //clear fields
     $(this).siblings('#city-field').val('');
     $(this).siblings('#country-field').val('');
@@ -30,7 +29,7 @@ $("#customSwitch1").prop("checked", false);
 $("#customSwitch1").change(function() {
 var unit = document.getElementById("customSwitch1").checked
     ? "fahrenheit"
-    : "celcius",
+    : "celsius",
   currentCityEl = document.querySelector("li.active"),
   country = currentCityEl.getAttribute("data-country"),
   name = currentCityEl.textContent,
@@ -55,7 +54,7 @@ $("input").keyup(function(event) {
   }
 });
 
-//loads with DOM to determine what's what.
+//load city history with DOM.
 function loadCites() {
   var cities =[];
   if (localStorage.getItem("cities") === null) {
@@ -65,7 +64,7 @@ function loadCites() {
     getWeather(cities[cities.length-1]);
 }}
   
-//set user's current possition and weather when LS is empty
+//set user's current position and weather when LS is empty
 function setUsersCurrentPosition() {
   geo.getCurrentPosition(function(position) {
   lat = position.coords.latitude;
@@ -77,7 +76,7 @@ function setUsersCurrentPosition() {
   })
     .then(function(weather) {
         //working with what we have..
-        var coords = {lat : lat, lng : lng},
+        var coords = { lat, lng },
             city = {id : weather.city.id.toString(),
                    name : weather.city.name, 
                    country : weather.city.country,
@@ -99,26 +98,26 @@ function setMapCanvas() {
 }
 
 function initMap(coords) {
-    var display = new google.maps.Map(document.getElementById("map"), {
+    var map = new google.maps.Map(document.getElementById("map"), {
       zoom: 10,
       center: coords,
       disableDefaultUI: true
     }),
-    marker = new google.maps.Marker({ position: coords, map: display });
+    marker = new google.maps.Marker({ position: coords, map });
 }
       
 function getWeather(city) {
-  //get location specifics from google first to allow for more ambiguous results. Users can misspell input, use state or country OR neither, use abbreviations.. (e.g. 'philly'), etc. 
+  //get location specifics from google first to allow for more ambiguous results. Users can misspell input, use state or country OR neither, abbreviations.. (e.g. 'philly'), etc. 
   $.ajax({       
   url: "https://maps.googleapis.com/maps/api/geocode/json?address="+city.name+",+"+city.country+"&key="+googApiKey+"",
   method: "GET"
   })
-  .then(function(response) {
-    city.name = response.results[0].formatted_address;
-    city.country = response.results[0].address_components[response.results[0].address_components.length - 1].long_name; 
-    var coords = response.results[0].geometry.location,
-        lat = coords.lat,
-        lng = coords.lng; 
+  .then(function({ results }) {
+    var [ place ] = results;
+    city.name = place.formatted_address;
+    city.country = place.address_components[place.address_components.length - 1].long_name; 
+    var coords = place.geometry.location,
+        { lat, lng } = coords;
 
   initMap(coords);
 
@@ -136,7 +135,7 @@ function getWeather(city) {
     }); 
 });}  
 
- //load cites from LS and gernerate list items.
+ //load cites from LS and generate list items.
  function getCites(city) {
   var cities;
   if (localStorage.getItem("cities") === null) {
@@ -188,7 +187,7 @@ function getWeather(city) {
 //Event listeners for the city list
 function cityClickListener() {
   var listItems = document.querySelectorAll(".list-group-item"),
-      unit = document.getElementById('customSwitch1').checked ? 'fahrenheit' : 'celcius';
+      unit = document.getElementById('customSwitch1').checked ? 'fahrenheit' : 'celsius';
 
   listItems.forEach(function (city) {
     city.addEventListener("click", function (event) {
@@ -228,16 +227,16 @@ function setCityInLS(city) {
     localStorage.setItem("cities", JSON.stringify(cities));
 }
 
-//lose the dead weight.
+//An over eager method to remove dupes.  But works ok, i guess. 
 function removeDupes(arr) {
-  //ES6 magic used to remove dulicate objects from the array.
+  //ES6 magic used to remove duplicate objects from the array.
     var nameArr = [...(new Set(arr.map(({ name }) => name)))],
         countryArr = [...(new Set(arr.map(({ country }) => country)))],
-        unitArr = [...(new Set(arr.map(({ unit }) => unit)))];
-        idArr = [...(new Set(arr.map(({ id }) => id)))];
-        purgedArray = [];
-   
+        unitArr = [...(new Set(arr.map(({ unit }) => unit)))],
+        idArr = [...(new Set(arr.map(({ id }) => id)))],
+
   //Reestablish the original object format from the data sets.  
+      purgedArray = [];
       for (var i = 0; i < nameArr.length; i++) {
         var obj = { id : idArr[i],
                     name : nameArr[i] , 
@@ -248,7 +247,7 @@ function removeDupes(arr) {
     return purgedArray;
    }
 
-//user inyaface.
+//UI.
 function paintWeather(weather, city) {
   var temp, highs = [], lows = [],
       kHighs = getHighTemps(weather),
@@ -256,29 +255,29 @@ function paintWeather(weather, city) {
       indices = getMiddayIndices(weather),
       wind = metricToImperial(weather.list[0].wind.speed);
 
-  //done seperately and not async.
+  //done separately and not async.
   getUltraViolet(weather.city.coord);
 
   if (city.unit === "fahrenheit") {
   $("#customSwitch1").prop("checked", true);
-  temp = converFahrenheit(JSON.parse(weather.list[0].main.temp));
+  temp = convertFahrenheit(JSON.parse(weather.list[0].main.temp));
   kHighs.forEach(function(high) {
-    highs.push(converFahrenheit(high));
+    highs.push(convertFahrenheit(high));
   });
   kLows.forEach(function(low) {
-    lows.push(converFahrenheit(low));
+    lows.push(convertFahrenheit(low));
   });
-} else { //celcius
+} else { //celsius
   $("#customSwitch1").prop("checked", false);
-  temp = convertCelcius(JSON.parse(weather.list[0].main.temp));
+  temp = convertCelsius(JSON.parse(weather.list[0].main.temp));
   kHighs.forEach(function(high) {
-    highs.push(convertCelcius(high));
+    highs.push(convertCelsius(high));
   });
   kLows.forEach(function(low) {
-    lows.push(convertCelcius(low));
+    lows.push(convertCelsius(low));
   });
 }
-//hide day 5 when data is insuffiecient
+//hide day 5 when data is insufficient
  if (indices.length < 5) {
   $(".no-info").hide();
   indices.push(weather.list.length - 1);
@@ -293,31 +292,31 @@ function paintWeather(weather, city) {
   $('.wind').text(wind);
   $('.icon').attr('src', "https://openweathermap.org/img/w/"+weather.list[0].weather[0].icon+".png");   
 
-  //day of week for extended forcast
+  //day of week for extended forecast
   $('.day-1').text(moment().add(1, 'days').format('dddd'));
   $('.day-2').text(moment().add(2, 'days').format('dddd'));
   $('.day-3').text(moment().add(3, 'days').format('dddd'));
   $('.day-4').text(moment().add(4, 'days').format('dddd'));
   $('.day-5').text(moment().add(5, 'days').format('dddd'));
-  //high temp for extended forcast
+  //high temp for extended forecast
   $('.high-1').text('High: '+highs[0]);
   $('.high-2').text('High: '+highs[1]);
   $('.high-3').text('High: '+highs[2]);
   $('.high-4').text('High: '+highs[3]);
   $('.high-5').text('High: '+highs[4]);
-  //low temp for extened forcast
+  //low temp for extended forecast
   $('.low-1').text('Low: '+lows[0]);
   $('.low-2').text('Low: '+lows[1]);
   $('.low-3').text('Low: '+lows[2]);
   $('.low-4').text('Low: '+lows[3]);
   $('.low-5').text('Low: '+lows[4]);
-  //icons for extended forcast
+  //icons for extended forecast
   $('.icon-1').attr('src', "https://openweathermap.org/img/w/"+weather.list[indices[0]].weather[0].icon+".png");
   $('.icon-2').attr('src', "https://openweathermap.org/img/w/"+weather.list[indices[1]].weather[0].icon+".png");
   $('.icon-3').attr('src', "https://openweathermap.org/img/w/"+weather.list[indices[2]].weather[0].icon+".png");
   $('.icon-4').attr('src', "https://openweathermap.org/img/w/"+weather.list[indices[3]].weather[0].icon+".png");
   $('.icon-5').attr('src', "https://openweathermap.org/img/w/"+weather.list[indices[4]].weather[0].icon+".png");
-  //descriptions for extended forcast
+  //descriptions for extended forecast
   $('.descript-1').text(weather.list[indices[0]].weather[0].description);
   $('.descript-2').text(weather.list[indices[1]].weather[0].description);
   $('.descript-3').text(weather.list[indices[2]].weather[0].description);
@@ -325,20 +324,20 @@ function paintWeather(weather, city) {
   $('.descript-5').text(weather.list[indices[4]].weather[0].description);
 }
 
-//convert kelvin to Fahrenheit and Celcius
-function converFahrenheit(kelvin) {
+//convert kelvin to Fahrenheit and Celsius
+function convertFahrenheit(kelvin) {
   fTemp = Math.round((kelvin-273.15)*9/5 +32);
   return ""+fTemp+"\xB0F";
 }
-function convertCelcius (kelvin) {
+function convertCelsius (kelvin) {
   var cTemp = Math.round(kelvin-273.15);
   return ""+cTemp+"\xB0C";
 }
 
 //get ultra violet index
-function getUltraViolet(coords) {
+function getUltraViolet({ lat, lon }) {
   $.ajax({   
-    url: "https://api.openweathermap.org/data/2.5/uvi?lat="+coords.lat+"&lon="+coords.lon+"&appid="+weatherKey+"",
+    url: "https://api.openweathermap.org/data/2.5/uvi?lat="+lat+"&lon="+lon+"&appid="+weatherKey+"",
     method: "GET"
 })
     .then(function(uv) { 
@@ -353,7 +352,7 @@ function metricToImperial(speed) {
     return "Wind Speed: "+rounded+"Mph";
 }
 
-//get the indicies of each midday point for extended forcast icons and descriptions.
+//get the indices of each midday point for extended forecast icons and descriptions.
 function getMiddayIndices(weather) {
   var now = new Date(),
       indices = [];
